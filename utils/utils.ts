@@ -121,6 +121,9 @@ export function validateGOOD(input: unknown) {
     if (!Array.isArray(json.artifacts))
         throw { goodError: "Invalid artifact data" }
 
+    if (json.artifacts.length > 1520)
+        throw { goodError: `Too many artifacts (found ${json.artifacts.length})` }
+
     for (const artifact of json.artifacts) {
         if (typeof artifact.setKey !== "string" || !artifactKeys.includes(artifact.setKey))
             throw { goodError: `Unknown artifact type ${artifact.setKey}` }
@@ -161,6 +164,8 @@ export function validateGOOD(input: unknown) {
         for (const char of json.characters) {
             if (typeof char.key !== "string" || !charKeys.includes(char.key))
                 throw { goodError: `Unknown character ${char.key}` }
+            if (json.characters.filter(c => c.key == char.key).length > 1)
+                throw { goodError: `Duplicate character ${char.key}` }
 
             if (typeof char.level !== "number" || char.level < 1 || char.level > 90)
                 throw { goodError: `Invalid character level ${char.level} for ${char.key}` }
@@ -183,6 +188,9 @@ export function validateGOOD(input: unknown) {
     if (json.weapons) {
         if (!Array.isArray(json.weapons))
             throw { goodError: "Invalid weapon data" }
+
+        if (json.weapons.length > 2020)
+            throw { goodError: `Too many weapons (found ${json.weapons.length})` }
 
         for (const weapon of json.weapons) {
             if (typeof weapon.key !== "string" || !weaponKeys.includes(weapon.key))
