@@ -1,0 +1,111 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String          @id
+  createdOn      DateTime        @default(now())
+  username       String
+  tag            String
+  avatar         String
+  authentication Authentication?
+  banned         Boolean         @default(false)
+  admin          Boolean         @default(false)
+  premium        Boolean         @default(false)
+
+  ar          Int?
+  arXP        Int?
+  affiliation String?
+  uid         String?
+
+  currentGOOD GOOD? @relation("current", fields: [GOODId], references: [id])
+  GOODId      Int?  @unique
+
+  goods              GOOD[]           @relation("created")
+  createdExperiments Experiment[]
+  experimentData     ExperimentData[]
+  computers          Computer[]
+}
+
+model Authentication {
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @id
+  token  String @unique
+}
+
+model GOOD {
+  id                    Int       @id @default(autoincrement())
+  createdOn             DateTime  @default(now())
+  data                  Json
+  verified              Boolean   @default(false)
+  verifiedTime          DateTime?
+  verificationArtifacts Json[]
+  enkaResponse          Json?
+
+  hasChars   Boolean @default(false)
+  hasWeapons Boolean @default(false)
+  currentOf  User?   @relation("current")
+  owner      User?   @relation("created", fields: [ownerId], references: [id])
+  ownerId    String?
+}
+
+model Experiment {
+  id        String   @id
+  name      String
+  createdOn DateTime @default(now())
+  creator   User     @relation(fields: [creatorId], references: [id])
+  creatorId String
+  character String
+  template  Json
+  active    Boolean
+
+  staticDataline StaticDataline[]
+  experimentData ExperimentData[]
+}
+
+model StaticDataline {
+  id           Int        @id @default(autoincrement())
+  experiment   Experiment @relation(fields: [experimentId], references: [id])
+  experimentId String
+  name         String
+  dataLine     Json
+}
+
+model ExperimentData {
+  id           Int        @id @default(autoincrement())
+  experiment   Experiment @relation(fields: [experimentId], references: [id])
+  experimentId String
+  user         User       @relation(fields: [userId], references: [id])
+  userId       String
+  dataLine     Json
+  computedBy   Computer   @relation(fields: [computerId], references: [id])
+  computerId   Int
+  computeTime  Int
+}
+
+model Computer {
+  id     Int    @id @default(autoincrement())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+  token  String @unique
+
+  experimentData ExperimentData[]
+  computerLogs   ComputerLogs[]
+}
+
+model ComputerLogs {
+  id         Int      @id @default(autoincrement())
+  createdOn  DateTime @default(now())
+  serverTime DateTime
+  computer   Computer @relation(fields: [computerId], references: [id])
+  computerId Int
+  log        String
+}

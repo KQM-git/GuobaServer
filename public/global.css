@@ -1,0 +1,32 @@
+blockquote {
+    padding-left: 1.25rem/* 20px */;
+    margin-bottom: 0.5rem/* 8px */;
+    border-left-width: 2px;
+}
+strong {
+    font-weight: 600;
+}
+p a {
+    --tw-text-opacity: 1;
+    color: rgb(219 234 254 / var(--tw-text-opacity));
+}
+p a:hover {
+    --tw-text-opacity: 1;
+    color: rgb(96 165 250 / var(--tw-text-opacity));
+}
+a {
+    text-decoration-line: none;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+    font-weight: 600;
+}
+th {
+    font-weight: 600;
+    padding-left: 0.25rem/* 4px */;
+}
+thead {
+    text-align: left;
+}
+
+
