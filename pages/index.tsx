@@ -37,15 +37,6 @@ export default function MainPage({ location, experiments }: Props & { location: 
 
       {
         isGUOBAActive() ? <>
-          <h3 className="text-2xl font-bold pt-1" id="about">Instructions</h3>
-          <p>
-            Enter your artifacts (and optionally, weapon and character data) into <FormattedLink href="https://frzyc.github.io/genshin-optimizer/"
-              target="go">Genshin Optimizer</FormattedLink> by either manually entering them (not recommended) or via some scanner (read <FormattedLink
-                href="https://frzyc.github.io/genshin-optimizer/#/scanner" target="go-scan">GenshinOptimizer&apos;s scanner page</FormattedLink> for more information).
-            Next, a GOOD export can be taken via the <FormattedLink href="https://frzyc.github.io/genshin-optimizer/#/setting"
-              target="go-setting">Settings</FormattedLink> page under <i>Database Download</i>.
-            This export can then be submitted <FormattedLink href="user/submit">here</FormattedLink>.
-          </p>
           <div className="flex justify-center m-6">
             <FormattedLink href="user/submit" className="btn btn-primary btn-lg ">
               Submit your own data here.
