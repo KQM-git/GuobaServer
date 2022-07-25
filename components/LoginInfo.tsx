@@ -1,6 +1,6 @@
 import { useRouter } from "next/router"
 import { ReactElement } from "react"
-import { DiscordAvatar } from "./DiscordAvatar"
+import { DiscordUser } from "./DiscordAvatar"
 
 export function LoginInfo({ user, children }: { user: { id: string, avatar: string, username: string, tag: string | number }, children?: ReactElement | ReactElement[] }) {
   const router = useRouter()
@@ -18,7 +18,7 @@ export function LoginInfo({ user, children }: { user: { id: string, avatar: stri
     </h1>
     {children}
     <div className="text-base">
-      Logged in as: <DiscordAvatar user={user} /> {user.username}<span className="text-xs">#{user.tag}</span>
+      Logged in as: <DiscordUser user={user} />
     </div>
   </>
 }

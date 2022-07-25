@@ -9,6 +9,7 @@ strong {
 p a {
     --tw-text-opacity: 1;
     color: rgb(219 234 254 / var(--tw-text-opacity));
+    font-weight: 600;
 }
 p a:hover {
     --tw-text-opacity: 1;
@@ -19,7 +20,6 @@ a {
     transition-property: all;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 200ms;
-    font-weight: 600;
 }
 th {
     font-weight: 600;

@@ -44,7 +44,8 @@ export async function registerOrLogin(user: DiscordUser, token: string) {
             avatar: user.avatar,
             username: user.username,
             tag: user.discriminator,
-        }
+        },
+        select: { id: true }
     })
     await prisma.authentication.upsert({
         where: {
@@ -56,7 +57,8 @@ export async function registerOrLogin(user: DiscordUser, token: string) {
         },
         update: {
             token
-        }
+        },
+        select: { userId: true }
     })
 }
 
@@ -137,7 +139,8 @@ export async function addGOOD(user: string, good: GOODData, hasChars: boolean, h
             },
             data: {
                 uid
-            }
+            },
+            select: { id: true }
         }),
         prisma.gOOD.create({
             data: {
@@ -154,7 +157,55 @@ export async function addGOOD(user: string, good: GOODData, hasChars: boolean, h
                         id: user
                     }
                 }
-            }
+            },
+            select: { id: true }
         })
     ])
+}
+
+export async function verifyData(user: string) {
+    console.log(`Verifying user data ${user}`)
+    const current = await prisma.user.findUnique({
+        where: { id: user },
+        select: {
+            currentGOOD: {
+                select: { id: true }
+            }
+        }
+    })
+
+    if (!current || !current.currentGOOD)
+        return false
+
+    await prisma.gOOD.update({
+        where: { id: current.currentGOOD.id },
+        data: {
+            // TODO store enka
+            verified: true,
+            verifiedTime: new Date()
+        },
+        select: { id: true }
+    })
+}
+
+export async function getGOOD(id: number) {
+    return await prisma.gOOD.findUnique({
+        where: { id }
+    })
+}
+
+export async function getComputers() {
+    return (await prisma.computer.findMany({
+        orderBy: { id: "asc" },
+        include: {
+            user: true,
+            computerLogs: {
+                orderBy: { id: "desc" },
+                take: 10
+            }
+        }
+    })).map(x => {
+        x.token = "dn"
+        return x
+    })
 }

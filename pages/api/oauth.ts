@@ -78,5 +78,5 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
       return res.redirect(path)
   }
 
-  res.redirect("/tools")
+  res.redirect("/")
 }
