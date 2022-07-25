@@ -69,8 +69,8 @@ export default function ComputersPage({ user, computers, token }: Props) {
         <tbody>
           {computers.map(c => <tr key={c.id}>
             <th className={
-              c.computerLogs.some(cl => cl.createdOn.getTime() < now - 60 * 60 * 1000) || c.computerLogs.length == 0 ? "text-error" :
-                c.computerLogs.some(cl => cl.createdOn.getTime() < now - 5 * 60 * 1000) ? "text-warning" :
+              c.computerLogs.every(cl => cl.createdOn.getTime() < now - 60 * 60 * 1000) || c.computerLogs.length == 0 ? "text-error" :
+                c.computerLogs.every(cl => cl.createdOn.getTime() < now - 5 * 60 * 1000) ? "text-warning" :
                   ""}>
               {c.id}
             </th>
@@ -78,16 +78,19 @@ export default function ComputersPage({ user, computers, token }: Props) {
               <DiscordUser user={c.user} />
             </th>
             <th>
-              {c.computerLogs.map((cl, i) => <div key={i} className="mx-1">
-                <code>[{cl.createdOn.toLocaleString("en-uk", {
-                  year: "numeric",
-                  month: "2-digit",
-                  day: "2-digit",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit"
-                })}] {cl.log}</code>
-              </div>)}
+              {c.computerLogs
+                .sort((a, b) => a.serverTime.getTime() - b.serverTime.getTime())
+                .map((cl, i) => <div key={i} className="mx-1">
+                  <code>[{cl.createdOn.toLocaleString("en-uk", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit"
+                  })}] {cl.log}</code>
+                </div>)
+              }
             </th>
           </tr>)}
         </tbody>
