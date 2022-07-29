@@ -29,16 +29,18 @@ model User {
   currentGOOD GOOD? @relation("current", fields: [GOODId], references: [id])
   GOODId      Int?  @unique
 
-  goods               GOOD[]           @relation("owner")
-  createdExperiments  Experiment[]     @relation("created")
-  experimentData      ExperimentData[]
-  computers           Computer[]
+  goods              GOOD[]             @relation("owner")
+  createdExperiments Experiment[]       @relation("created")
+  experimentData     ExperimentData[]
+  computers          Computer[]
+  calculationQueue   CalculationQueue[]
 }
 
 model Authentication {
-  user   User   @relation(fields: [userId], references: [id])
-  userId String @id
-  token  String @unique
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @id
+  token     String   @unique
+  createdOn DateTime @default(now())
 }
 
 model GOOD {
@@ -69,12 +71,14 @@ model Experiment {
   active    Boolean  @default(false)
   public    Boolean  @default(false)
 
-  staticDataline StaticDataline[]
-  experimentData ExperimentData[]
+  staticDataline   StaticDataline[]
+  experimentData   ExperimentData[]
+  calculationQueue CalculationQueue[]
 }
 
 model StaticDataline {
   id           Int        @id @default(autoincrement())
+  createdOn    DateTime   @default(now())
   experiment   Experiment @relation(fields: [experimentId], references: [id])
   experimentId Int
   name         String
@@ -83,6 +87,7 @@ model StaticDataline {
 
 model ExperimentData {
   id           Int        @id @default(autoincrement())
+  createdOn    DateTime   @default(now())
   experiment   Experiment @relation(fields: [experimentId], references: [id])
   experimentId Int
   user         User       @relation(fields: [userId], references: [id])
@@ -93,14 +98,27 @@ model ExperimentData {
   computeTime  Int
 }
 
-model Computer {
-  id     Int    @id @default(autoincrement())
-  user   User   @relation(fields: [userId], references: [id])
-  userId String
-  token  String @unique
+model CalculationQueue {
+  id           Int        @id @default(autoincrement())
+  createdOn    DateTime   @default(now())
+  experiment   Experiment @relation(fields: [experimentId], references: [id])
+  experimentId Int
+  user         User       @relation(fields: [userId], references: [id])
+  userId       String
+  computingBy  Computer   @relation(fields: [computerId], references: [id])
+  computerId   Int
+}
 
-  experimentData ExperimentData[]
-  computerLogs   ComputerLogs[]
+model Computer {
+  id        Int      @id @default(autoincrement())
+  createdOn DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  token     String   @unique
+
+  experimentData   ExperimentData[]
+  computerLogs     ComputerLogs[]
+  calculationQueue CalculationQueue[]
 }
 
 model ComputerLogs {
