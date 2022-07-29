@@ -1,12 +1,12 @@
 import { GetStaticPropsResult } from "next"
 import Head from "next/head"
 import FormattedLink from "../components/FormattedLink"
-import { getExperiments } from "../utils/db"
+import { getExperimentList, getExperiments } from "../utils/db"
 import { isGUOBAActive } from "../utils/utils"
 
 interface ExperimentMeta {
-  id: string
   name: string
+  slug: string
   active: boolean
 }
 interface Props {
@@ -64,7 +64,7 @@ function List({ experiments, location }: { experiments: ExperimentMeta[], locati
   return <ul>
     {experiments.map(experiment => (<li key={experiment.name}>
       -{" "}
-      <FormattedLink href={`/${experiment.id}`} location={location} className="font-semibold text-l">
+      <FormattedLink href={`/experiments/${experiment.slug}`} location={location} className="font-semibold text-l">
         {experiment.name}
       </FormattedLink>
     </li>))}
@@ -74,7 +74,7 @@ function List({ experiments, location }: { experiments: ExperimentMeta[], locati
 export async function getStaticProps(): Promise<GetStaticPropsResult<Props>> {
   return {
     props: {
-      experiments: await getExperiments()
+      experiments: await getExperimentList()
     },
     revalidate: 60 * 60 * 2
   }

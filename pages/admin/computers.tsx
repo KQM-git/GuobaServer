@@ -57,7 +57,7 @@ export default function ComputersPage({ user, computers, token }: Props) {
       </div>
       <LoginInfo user={user} />
 
-      <h3 className="text-xl font-semibold py-2">Computers </h3>
+      <h3 className="text-xl font-semibold py-2">Computers</h3>
       <table className="table table-zebra table-compact w-full -z-50 table-auto">
         <thead>
           <tr>

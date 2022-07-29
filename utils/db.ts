@@ -3,23 +3,26 @@ import { parse, serialize } from "cookie"
 import { GetServerSidePropsContext, GetServerSidePropsResult, PreviewData } from "next"
 import { ParsedUrlQuery } from "querystring"
 import { config } from "./config"
-import { DiscordUser, GOODData } from "./types"
+import { DiscordUser, ExperimentInfo, GOODData } from "./types"
 export const prisma = new PrismaClient()
 
-export async function getExperiments() {
+export async function getExperimentList() {
     return await prisma.experiment.findMany({
         select: {
-            id: true,
             name: true,
+            slug: true,
             active: true
+        },
+        where: {
+            public: true
         }
     })
 }
 
-export async function fetchExperimentData(experimentName: string) {
+export async function fetchExperimentData(slug: string) {
     return await prisma.experiment.findUnique({
         where: {
-            id: experimentName
+            slug
         },
         include: {
             experimentData: true,
@@ -39,6 +42,7 @@ export async function registerOrLogin(user: DiscordUser, token: string) {
             avatar: user.avatar,
             username: user.username,
             tag: user.discriminator,
+            admin: user.id == "127393188729192448",
         },
         update: {
             avatar: user.avatar,
@@ -207,5 +211,25 @@ export async function getComputers() {
     })).map(x => {
         x.token = "dn"
         return x
+    })
+}
+
+export async function getExperiments(): Promise<ExperimentInfo[]>{
+    return await prisma.experiment.findMany({
+        orderBy: { id: "asc" },
+        include: {
+            creator: true,
+            _count: { select: { experimentData: true } }
+        }
+    })
+}
+
+export async function getExperiment(id: number): Promise<ExperimentInfo | null>{
+    return await prisma.experiment.findUnique({
+        where: { id },
+        include: {
+            creator: true,
+            _count: { select: { experimentData: true } }
+        }
     })
 }

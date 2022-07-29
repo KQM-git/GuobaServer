@@ -1,4 +1,4 @@
-import { Computer, ComputerLogs, User } from "@prisma/client"
+import { Computer, ComputerLogs, Experiment, User } from "@prisma/client"
 
 export interface DiscordUser {
     id: string
@@ -70,6 +70,13 @@ interface ICharacter {
 }
 
 export type ComputerInfo = Computer & {
-    user: User;
-    computerLogs: ComputerLogs[];
+    user: User
+    computerLogs: ComputerLogs[]
+}
+
+export type ExperimentInfo = Experiment & {
+    creator: User
+    _count: {
+        experimentData: number
+    }
 }

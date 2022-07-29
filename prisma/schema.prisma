@@ -29,10 +29,10 @@ model User {
   currentGOOD GOOD? @relation("current", fields: [GOODId], references: [id])
   GOODId      Int?  @unique
 
-  goods              GOOD[]           @relation("created")
-  createdExperiments Experiment[]
-  experimentData     ExperimentData[]
-  computers          Computer[]
+  goods               GOOD[]           @relation("owner")
+  createdExperiments  Experiment[]     @relation("created")
+  experimentData      ExperimentData[]
+  computers           Computer[]
 }
 
 model Authentication {
@@ -53,19 +53,21 @@ model GOOD {
   hasChars   Boolean @default(false)
   hasWeapons Boolean @default(false)
   currentOf  User?   @relation("current")
-  owner      User?   @relation("created", fields: [ownerId], references: [id])
+  owner      User?   @relation("owner", fields: [ownerId], references: [id])
   ownerId    String?
 }
 
 model Experiment {
-  id        String   @id
+  id        Int      @id @default(autoincrement())
   name      String
+  slug      String   @unique
   createdOn DateTime @default(now())
-  creator   User     @relation(fields: [creatorId], references: [id])
+  creator   User     @relation("created", fields: [creatorId], references: [id])
   creatorId String
   character String
   template  Json
-  active    Boolean
+  active    Boolean  @default(false)
+  public    Boolean  @default(false)
 
   staticDataline StaticDataline[]
   experimentData ExperimentData[]
@@ -74,7 +76,7 @@ model Experiment {
 model StaticDataline {
   id           Int        @id @default(autoincrement())
   experiment   Experiment @relation(fields: [experimentId], references: [id])
-  experimentId String
+  experimentId Int
   name         String
   dataLine     Json
 }
@@ -82,7 +84,7 @@ model StaticDataline {
 model ExperimentData {
   id           Int        @id @default(autoincrement())
   experiment   Experiment @relation(fields: [experimentId], references: [id])
-  experimentId String
+  experimentId Int
   user         User       @relation(fields: [userId], references: [id])
   userId       String
   dataLine     Json

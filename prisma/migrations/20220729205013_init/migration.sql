@@ -43,13 +43,15 @@ CREATE TABLE "GOOD" (
 
 -- CreateTable
 CREATE TABLE "Experiment" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
     "createdOn" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "creatorId" TEXT NOT NULL,
     "character" TEXT NOT NULL,
     "template" JSONB NOT NULL,
-    "active" BOOLEAN NOT NULL,
+    "active" BOOLEAN NOT NULL DEFAULT false,
+    "public" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "Experiment_pkey" PRIMARY KEY ("id")
 );
@@ -57,7 +59,7 @@ CREATE TABLE "Experiment" (
 -- CreateTable
 CREATE TABLE "StaticDataline" (
     "id" SERIAL NOT NULL,
-    "experimentId" TEXT NOT NULL,
+    "experimentId" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
     "dataLine" JSONB NOT NULL,
 
@@ -67,7 +69,7 @@ CREATE TABLE "StaticDataline" (
 -- CreateTable
 CREATE TABLE "ExperimentData" (
     "id" SERIAL NOT NULL,
-    "experimentId" TEXT NOT NULL,
+    "experimentId" INTEGER NOT NULL,
     "userId" TEXT NOT NULL,
     "dataLine" JSONB NOT NULL,
     "computerId" INTEGER NOT NULL,
@@ -101,6 +103,9 @@ CREATE UNIQUE INDEX "User_GOODId_key" ON "User"("GOODId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Authentication_token_key" ON "Authentication"("token");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Experiment_slug_key" ON "Experiment"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Computer_token_key" ON "Computer"("token");

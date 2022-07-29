@@ -40,12 +40,12 @@ export default function AdminPage({ user }: Props) {
         </ul>
       </div>
       <LoginInfo user={user} />
-      <h3 className="text-xl font-semibold pb-2">Panels </h3>
+      <h3 className="text-xl font-semibold pb-2">Panels</h3>
       <button className="btn btn-primary m-2" onClick={() => router.push("/admin/computers")}>
         Manage computers
       </button>
       <button className="btn btn-primary m-2" onClick={() => router.push("/admin/experiments")}>
-        TODO: Manage experiments
+        Manage experiments
       </button>
       <button className="btn btn-primary m-2" onClick={() => router.push("/admin/users")}>
         TODO: Manage users
