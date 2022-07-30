@@ -1,4 +1,5 @@
 import { User } from "@prisma/client"
+import { randomUUID } from "crypto"
 import { GetServerSideProps } from "next"
 import Head from "next/head"
 import Link from "next/link"
@@ -8,7 +9,7 @@ import { DiscordUser } from "../../components/DiscordAvatar"
 import { LoginInfo } from "../../components/LoginInfo"
 import { getComputers, getUserFromCtx, isUser } from "../../utils/db"
 import { ComputerInfo } from "../../utils/types"
-import { randomUUID } from "crypto"
+import { doFetch, download } from "../../utils/utils"
 
 interface Props {
   user: User,
@@ -40,7 +41,7 @@ export default function ComputersPage({ user, computers, token }: Props) {
   }, [toast])
 
   return (
-    <main className="max-w-5xl w-full px-1">
+    <main className="w-full px-1">
       <Head>
         <title>Manage computers | The GUOBA Project</title>
         <meta name="twitter:card" content="summary" />
@@ -131,24 +132,11 @@ export default function ComputersPage({ user, computers, token }: Props) {
         className={"btn btn-primary my-2 tooltip tooltip-warning normal-case"}
         data-tip="STORE THIS VALUE BEFORE CLICKING CREATE. This cannot be recovered later."
         onClick={async () => {
-          try {
-            const response = await (await fetch("/api/create-computer", {
-              method: "POST",
-              body: (document.getElementById("token") as HTMLInputElement).value
-            })).json()
-
-            if (response.error) {
-              setToast(response.error)
-              return
-            }
-            if (response.ok) {
-              router.reload()
-              return
-            }
-            setToast("Unknown response")
-          } catch (error) {
-            setToast(`An error occurred while creating computer:\n${error}`)
-          }
+          download("token.json", JSON.stringify({
+            baseURL: window.location.origin,
+            token
+          }, undefined, 2))
+          await doFetch("/api/create-computer", (document.getElementById("token") as HTMLInputElement).value, setToast, router)
         }}
       >
         CREATE COMPUTER

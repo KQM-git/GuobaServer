@@ -58,24 +58,27 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
     const experiments = await prisma.experiment.findMany({
       where: { active: true },
       orderBy: { experimentData: { _count: "asc" } },
-      select: { id: true, template: true, character: true, experimentData: { select: { userId: true } } },
+      select: { id: true, template: true, character: true, experimentData: { select: { userId: true, GOODId: true } } },
       take: 10
     })
 
     const alreadyQueued = await prisma.calculationQueue.findMany({
       where: { createdOn: { gte: new Date(Date.now() - 30 * 60 * 1000) } },
-      select: { experimentId: true, userId: true }
+      select: { experimentId: true, userId: true, GOODId: true }
     })
 
     const users = await prisma.user.findMany({
       where: { banned: false, currentGOOD: { verified: true } },
-      orderBy: { experimentData: { _count: "asc" } },
+      orderBy: [{ admin: "desc" }, { premium: "desc" }, { experimentData: { _count: "asc" } }, { createdOn: "asc" }],
       select: { id: true, GOODId: true }
     })
 
     for (const experiment of experiments)
       for (const user of users)
-        if (!alreadyQueued.some(aq => aq.experimentId == experiment.id && aq.userId == user.id) && experiment.experimentData.every(ed => ed.userId !== user.id)) {
+        if (
+          !alreadyQueued.some(aq => aq.experimentId == experiment.id && aq.userId == user.id && aq.GOODId == user.GOODId) &&
+          !experiment.experimentData.some(ed => ed.userId == user.id && ed.GOODId == user.GOODId)
+        ) {
           const good = await prisma.gOOD.findUnique({ where: { id: user.GOODId! }, select: { data: true } })
           if (!good) continue
 
@@ -94,6 +97,11 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
               user: {
                 connect: {
                   id: user.id
+                }
+              },
+              good: {
+                connect: {
+                  id: user.GOODId!
                 }
               }
             },

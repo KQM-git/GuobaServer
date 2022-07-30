@@ -80,3 +80,34 @@ export type ExperimentInfo = Experiment & {
         experimentData: number
     }
 }
+
+export type UserInfo = User & {
+    _count: {
+        experimentData: number
+    }
+    currentGOOD: {
+        verified: boolean
+    } | null
+}
+
+export type DetailedUserInfo = User & {
+    experimentData: {
+        experiment: {
+            name: string
+            slug: string
+            template: any // Should be GOODData
+        }
+        GOODId: number
+        createdOn: Date
+        computeTime: number
+        computerId: number
+    }[]
+    currentGOOD: {
+        createdOn: Date
+        hasChars: boolean
+        hasWeapons: boolean
+        verified: boolean
+        verificationArtifacts: any[]
+        verifiedTime: Date | null
+    } | null
+}

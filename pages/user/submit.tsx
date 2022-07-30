@@ -6,7 +6,7 @@ import { useEffect, useState } from "react"
 import FormattedLink from "../../components/FormattedLink"
 import { LoginInfo } from "../../components/LoginInfo"
 import { getUserFromCtx, isUser } from "../../utils/db"
-import { cleanCopy, getIfGOOD, isValidSubmission, validateChars, validateJson, validateUID, validateWeapons } from "../../utils/utils"
+import { cleanCopy, doFetch, getIfGOOD, isValidSubmission, validateChars, validateJson, validateUID, validateWeapons } from "../../utils/utils"
 
 
 interface Props {
@@ -223,24 +223,10 @@ export default function SubmitPage({ user }: Props) {
               setToast("An error occurred while cleaning up GOOD data")
               return
             }
-
-            const response = await (await fetch("/api/submit", {
-              method: "POST",
-              body: JSON.stringify({
-                hasChars, hasWeapons,
-                uid, good: clean
-              })
-            })).json()
-
-            if (response.error) {
-              setToast(response.error)
-              return
-            }
-            if (response.redirect) {
-              router.push(response.redirect)
-              return
-            }
-            setToast("Unknown response")
+            await doFetch("/api/submit", JSON.stringify({
+              hasChars, hasWeapons,
+              uid, good: clean
+            }), setToast, router)
           } catch (error) {
             setToast(`An error occurred while submitting data:\n${error}`)
           }

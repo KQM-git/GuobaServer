@@ -48,7 +48,7 @@ export default function AdminPage({ user }: Props) {
         Manage experiments
       </button>
       <button className="btn btn-primary m-2" onClick={() => router.push("/admin/users")}>
-        TODO: Manage users
+        Manage users
       </button>
 
       {toast.length > 0 &&

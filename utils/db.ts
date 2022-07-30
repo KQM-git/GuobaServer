@@ -134,6 +134,46 @@ export async function getUserData(token: string) {
     })
 }
 
+export async function getUser(id: string, showAll: boolean) {
+    return await prisma.user.findUnique({
+        where: {
+            id
+        },
+        include: {
+            currentGOOD: {
+                select: {
+                    createdOn: true,
+                    hasChars: true,
+                    hasWeapons: true,
+                    verified: true,
+                    verificationArtifacts: true,
+                    verifiedTime: true
+                }
+            },
+            experimentData: {
+                where: {
+                    experiment: {
+                        public: showAll ? undefined : true
+                    }
+                },
+                select: {
+                    createdOn: true,
+                    GOODId: true,
+                    computeTime: true,
+                    computerId: true,
+                    experiment: {
+                        select: {
+                            name: true,
+                            slug: true,
+                            template: true,
+                        }
+                    }
+                }
+            }
+        }
+    })
+}
+
 export async function addGOOD(user: string, good: GOODData, hasChars: boolean, hasWeapons: boolean, uid: string) {
     console.log(`Adding GOOD for ${user} (UID: ${uid})`)
     await prisma.$transaction([

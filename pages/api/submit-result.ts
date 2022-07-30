@@ -1,7 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next"
 import { prisma } from "../../utils/db"
-import { GOODData } from "../../utils/types"
-import { mergeTemplate } from "../../utils/utils"
 
 export default async function api(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") return res.send({ error: "Method not allowed!" })
@@ -41,6 +39,11 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
           user: {
             connect: {
               id: queued.userId
+            }
+          },
+          good: {
+            connect: {
+              id: queued.GOODId
             }
           }
         }

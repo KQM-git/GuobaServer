@@ -7,7 +7,7 @@ import { useEffect, useState } from "react"
 import { LoginInfo } from "../../../components/LoginInfo"
 import { getExperiment, getUserFromCtx, isUser } from "../../../utils/db"
 import { ExperimentInfo } from "../../../utils/types"
-import { urlify } from "../../../utils/utils"
+import { doFetch, urlify } from "../../../utils/utils"
 
 interface Props {
   user: User,
@@ -37,7 +37,7 @@ export default function ExperimentsPage({ user, experiment }: Props) {
   return (
     <main className="max-w-5xl w-full px-1">
       <Head>
-        <title>Manage experiment | The GUOBA Project</title>
+        <title>Manage {experiment.name} | The GUOBA Project</title>
         <meta name="twitter:card" content="summary" />
         <meta property="og:title" content="Manage experiment | The GUOBA Project" />
         <meta property="og:description" content={desc} />
@@ -47,7 +47,8 @@ export default function ExperimentsPage({ user, experiment }: Props) {
       <div className="text-sm breadcrumbs">
         <ul>
           <li><Link href={"/admin"}>Admin stuff</Link></li>
-          <li>Experiment management</li>
+          <li><Link href={"/admin/experiments"}>Experiment management</Link></li>
+          <li>{experiment.name}</li>
         </ul>
       </div>
       <LoginInfo user={user} />
@@ -117,30 +118,13 @@ export default function ExperimentsPage({ user, experiment }: Props) {
       <button
         className={"btn btn-primary my-2"}
         onClick={async () => {
-          try {
-            const response = await (await fetch("/api/update-experiment", {
-              method: "POST",
-              body: JSON.stringify({
-                id: experiment.id,
-                name,
-                slug: slug || urlify(name, true),
-                active,
-                publicExp
-              })
-            })).json()
-
-            if (response.error) {
-              setToast(response.error)
-              return
-            }
-            if (response.ok) {
-              router.push("/admin/experiments")
-              return
-            }
-            setToast("Unknown response")
-          } catch (error) {
-            setToast(`An error occurred while creating experiment:\n${error}`)
-          }
+          await doFetch("/api/update-experiment", JSON.stringify({
+            id: experiment.id,
+            name,
+            slug: slug || urlify(name, true),
+            active,
+            publicExp
+          }), setToast, router)
         }}
       >
         Update experiment

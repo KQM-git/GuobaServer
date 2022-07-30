@@ -1,3 +1,4 @@
+import { NextRouter } from "next/router"
 import { GOODData } from "./types"
 
 export function urlify(input: string, shouldRemoveBrackets: boolean): string {
@@ -264,7 +265,7 @@ export function validateJson(text: string, chars: boolean, weapons: boolean): Re
     }
 }
 
-export function validateChars(toggle: boolean, text: string): {} | {charError: string} {
+export function validateChars(toggle: boolean, text: string): {} | { charError: string } {
     const parsed = getIfGOOD(text)
     if (!parsed)
         return {}
@@ -284,7 +285,7 @@ export function validateChars(toggle: boolean, text: string): {} | {charError: s
     return { charError: "" }
 }
 
-export function validateWeapons(toggle: boolean, text: string): {} | {weaponError: string} {
+export function validateWeapons(toggle: boolean, text: string): {} | { weaponError: string } {
     const parsed = getIfGOOD(text)
     if (!parsed)
         return {}
@@ -319,3 +320,42 @@ export function isValidSubmission(goodText: string, chars: boolean, weapons: boo
 }
 
 export const dateFormatter = new Intl.DateTimeFormat(undefined, { month: "long", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit", weekday: "short" })
+
+export function copy(contents: string) {
+    navigator.clipboard.writeText(contents)
+}
+
+export function download(filename: string, contents: string, mime = "text/plain") {
+    const blob = new Blob([contents], { type: mime }), url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    document.body.appendChild(link) // Firefox requires the link to be in the body
+    link.download = filename
+    link.href = url
+    link.click()
+    document.body.removeChild(link) // remove the link when done
+}
+
+export async function doFetch(url: `/api/${string}`, body: string, setToast: (response: string) => void, router: NextRouter) {
+    try {
+        const response = await (await fetch(url, {
+            method: "POST",
+            body
+        })).json()
+
+        if (response.error) {
+            setToast(response.error)
+            return
+        }
+        if (response.redirect) {
+            router.push(response.redirect)
+            return
+        }
+        if (response.ok) {
+            router.reload()
+            return
+        }
+        setToast("Unknown response")
+    } catch (error) {
+        setToast(`An error occurred:\n${error}`)
+    }
+}

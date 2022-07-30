@@ -7,16 +7,17 @@ import { useEffect, useState } from "react"
 import { DiscordUser } from "../../../components/DiscordAvatar"
 import FormattedLink from "../../../components/FormattedLink"
 import { LoginInfo } from "../../../components/LoginInfo"
-import { getExperiments, getUserFromCtx, isUser } from "../../../utils/db"
+import { getExperiments, getUserFromCtx, isUser, prisma } from "../../../utils/db"
 import { ExperimentInfo } from "../../../utils/types"
-import { urlify } from "../../../utils/utils"
+import { doFetch, urlify } from "../../../utils/utils"
 
 interface Props {
   user: User,
-  experiments: ExperimentInfo[]
+  experiments: ExperimentInfo[],
+  totalTimes: { experimentId: number, _sum: { computeTime: number|null }}[]
 }
 
-export default function ExperimentsPage({ user, experiments }: Props) {
+export default function ExperimentsPage({ user, experiments, totalTimes }: Props) {
   const desc = "Manage experiments"
 
   const router = useRouter()
@@ -71,6 +72,7 @@ export default function ExperimentsPage({ user, experiments }: Props) {
             <th>Creator</th>
             <th>Character</th>
             <th>Processed</th>
+            <th>Processing time</th>
             <th>Edit</th>
           </tr>
         </thead>
@@ -103,6 +105,7 @@ export default function ExperimentsPage({ user, experiments }: Props) {
             </th>
             <th>{c.character}</th>
             <th>{c._count.experimentData}</th>
+            <th>{((totalTimes.find(t => t.experimentId == c.id)?._sum.computeTime ?? 0) / 1000 / 60).toFixed(1)}m</th>
             <th><FormattedLink href={`/admin/experiments/${c.id}`}><button className="btn btn-sm btn-primary">Edit</button></FormattedLink></th>
           </tr>)}
         </tbody>
@@ -184,29 +187,12 @@ export default function ExperimentsPage({ user, experiments }: Props) {
       <button
         className={"btn btn-primary my-2"}
         onClick={async () => {
-          try {
-            const response = await (await fetch("/api/create-experiment", {
-              method: "POST",
-              body: JSON.stringify({
-                name,
-                slug: slug || urlify(name, true),
-                char: getChar(templateText),
-                template: JSON.parse(templateText).template
-              })
-            })).json()
-
-            if (response.error) {
-              setToast(response.error)
-              return
-            }
-            if (response.ok) {
-              router.reload()
-              return
-            }
-            setToast("Unknown response")
-          } catch (error) {
-            setToast(`An error occurred while creating experiment:\n${error}`)
-          }
+          await doFetch("/api/create-experiment", JSON.stringify({
+            name,
+            slug: slug || urlify(name, true),
+            char: getChar(templateText),
+            template: JSON.parse(templateText).template
+          }), setToast, router)
         }}
       >
         Create experiment
@@ -247,11 +233,18 @@ export const getServerSideProps: GetServerSideProps<Props> = async function (ctx
       }
     }
 
+  const totalTimes = await prisma.experimentData.groupBy({
+    _sum: {
+      computeTime: true
+    },
+    by: ["experimentId"]
+  })
 
   return {
     props: {
       user,
-      experiments: await getExperiments()
+      experiments: await getExperiments(),
+      totalTimes
     }
   }
 }
