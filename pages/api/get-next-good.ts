@@ -14,6 +14,10 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
     if (computer == null) return res.send({ error: "Unknown token!" })
 
     console.log(`Received GOOD request for ${token}`)
+    await prisma.calculationQueue.deleteMany({
+      where: { createdOn: { lt: new Date(Date.now() - 60 * 60 * 1000) } },
+    })
+
     const queued = await prisma.calculationQueue.findFirst({
       where: { computerId: computer.id },
       include: {
@@ -36,23 +40,19 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
     })
 
     if (queued) {
-      if (queued.createdOn.getTime() < Date.now() - 30 * 60 * 1000)
+      console.log(`Already found GOOD request for ${token}`)
+      const { character, template } = queued.experiment
+      const goodData = queued.user.currentGOOD?.data
+      if (!goodData) {
+        console.log(`Although, user GOOD is gone? For ${token}`)
         await prisma.calculationQueue.delete({ where: { id: queued.id } })
-      else {
-        console.log(`Already found GOOD request for ${token}`)
-        const { character, template } = queued.experiment
-        const goodData = queued.user.currentGOOD?.data
-        if (!goodData) {
-          console.log(`Although, user GOOD is gone? For ${token}`)
-          await prisma.calculationQueue.delete({ where: { id: queued.id } })
-        } else
-          return res.send({
-            status: "Already queued",
-            id: queued.id,
-            character,
-            good: mergeTemplate(goodData as unknown as GOODData, template as unknown as GOODData)
-          })
-      }
+      } else
+        return res.send({
+          status: "Already queued",
+          id: queued.id,
+          character,
+          good: mergeTemplate(goodData as unknown as GOODData, template as unknown as GOODData)
+        })
     }
 
     const experiments = await prisma.experiment.findMany({
@@ -62,15 +62,14 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
       take: 10
     })
 
-    const alreadyQueued = await prisma.calculationQueue.findMany({
-      where: { createdOn: { gte: new Date(Date.now() - 30 * 60 * 1000) } },
-      select: { experimentId: true, userId: true, GOODId: true }
-    })
-
     const users = await prisma.user.findMany({
       where: { banned: false, currentGOOD: { verified: true } },
       orderBy: [{ admin: "desc" }, { premium: "desc" }, { experimentData: { _count: "asc" } }, { createdOn: "asc" }],
       select: { id: true, GOODId: true }
+    })
+
+    const alreadyQueued = await prisma.calculationQueue.findMany({
+      select: { experimentId: true, userId: true, GOODId: true }
     })
 
     for (const experiment of experiments)
@@ -82,44 +81,53 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
           const good = await prisma.gOOD.findUnique({ where: { id: user.GOODId! }, select: { data: true } })
           if (!good) continue
 
-          const queue = await prisma.calculationQueue.create({
-            data: {
-              computingBy: {
-                connect: {
-                  token
+          try {
+            const queue = await prisma.calculationQueue.create({
+              data: {
+                computingBy: {
+                  connect: {
+                    token
+                  }
+                },
+                experiment: {
+                  connect: {
+                    id: experiment.id
+                  }
+                },
+                user: {
+                  connect: {
+                    id: user.id
+                  }
+                },
+                good: {
+                  connect: {
+                    id: user.GOODId!
+                  }
                 }
               },
-              experiment: {
-                connect: {
-                  id: experiment.id
-                }
-              },
-              user: {
-                connect: {
-                  id: user.id
-                }
-              },
-              good: {
-                connect: {
-                  id: user.GOODId!
-                }
-              }
-            },
-            select: { id: true }
-          })
+              select: { id: true }
+            })
 
-          const { character, template } = experiment
-          return res.send({
-            status: "New experiment found!",
-            id: queue.id,
-            character,
-            good: mergeTemplate(good.data as unknown as GOODData, template as unknown as GOODData)
-          })
+            const { character, template } = experiment
+            return res.send({
+              status: "New experiment found!",
+              id: queue.id,
+              character,
+              good: mergeTemplate(good.data as unknown as GOODData, template as unknown as GOODData)
+            })
+
+          } catch (error: any) {
+            if (error.toString().includes("Unique constraint failed on the fields:")) {
+              console.error("Unique constrain failed, trying next")
+              continue
+            }
+            else throw error
+          }
         }
 
     return res.send({ status: "No experiment found" })
-  } catch (error) {
-    console.log(error)
-    return res.send({ error: "An unknown error occurred!" })
+  } catch (error: any) {
+    console.error(error)
+    return res.send({ error: `An error occurred: ${error.toString().split("\n")[0]}` })
   }
 }

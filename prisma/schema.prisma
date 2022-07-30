@@ -113,6 +113,8 @@ model CalculationQueue {
   GOODId       Int
   computingBy  Computer   @relation(fields: [computerId], references: [id])
   computerId   Int
+
+  @@unique([experimentId, userId, GOODId])
 }
 
 model Computer {

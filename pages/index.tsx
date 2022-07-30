@@ -1,19 +1,8 @@
-import { GetStaticPropsResult } from "next"
 import Head from "next/head"
 import FormattedLink from "../components/FormattedLink"
-import { getExperimentList, getExperiments } from "../utils/db"
 import { isGUOBAActive } from "../utils/utils"
 
-interface ExperimentMeta {
-  name: string
-  slug: string
-  active: boolean
-}
-interface Props {
-  experiments: ExperimentMeta[]
-}
-
-export default function MainPage({ location, experiments }: Props & { location: string }) {
+export default function MainPage() {
   const desc = "The GUOBA Project intends to map out how the artifacts of players perform to improve mathematical models/artifact standards for calculations such as the KQMS."
   return (
     <main className="max-w-5xl w-full px-1">
@@ -49,33 +38,7 @@ export default function MainPage({ location, experiments }: Props & { location: 
           </div>
       }
 
-      <h3 className="text-2xl font-bold pt-1" id="experiments">List of Experiments</h3>
-      <List experiments={experiments.filter(x => x.active)} location={location} />
-
-      <details>
-        <summary className="text-xl font-bold pt-1" id="archived-experiments">Archived Experiments</summary>
-        <List experiments={experiments.filter(x => !x.active)} location={location} />
-      </details>
-
+      <FormattedLink className="text-2xl font-bold pt-1 link link-hover link-primary" href="/experiments">View experiments</FormattedLink>
     </main>
   )
-}
-function List({ experiments, location }: { experiments: ExperimentMeta[], location: string }) {
-  return <ul>
-    {experiments.map(experiment => (<li key={experiment.name}>
-      -{" "}
-      <FormattedLink href={`/experiments/${experiment.slug}`} location={location} className="font-semibold text-l">
-        {experiment.name}
-      </FormattedLink>
-    </li>))}
-  </ul>
-}
-
-export async function getStaticProps(): Promise<GetStaticPropsResult<Props>> {
-  return {
-    props: {
-      experiments: await getExperimentList()
-    },
-    revalidate: 60 * 60 * 2
-  }
 }

@@ -111,3 +111,16 @@ export type DetailedUserInfo = User & {
         verifiedTime: Date | null
     } | null
 }
+
+export interface SmallExperimentMeta {
+    name: string
+    slug: string
+    active: boolean
+}
+
+export interface ExperimentData {
+    nickname: string
+    stats: [number, number][]
+    affiliation: string
+    ar: number
+  }
