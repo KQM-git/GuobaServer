@@ -12,6 +12,11 @@ export interface DiscordUser {
     premium_type: number
 }
 
+export interface DiscordGuild {
+    id: string
+    name: string
+}
+
 export interface GOODData {
     format: "GOOD" // A way for people to recognize this format.
     version: number // GOOD API version.
@@ -85,6 +90,7 @@ export type UserInfo = User & {
     _count: {
         experimentData: number
     }
+    affiliations: PartialAffiliation[],
     currentGOOD: {
         verified: boolean
     } | null
@@ -110,6 +116,7 @@ export type DetailedUserInfo = User & {
         verificationArtifacts: any[]
         verifiedTime: Date | null
     } | null
+    affiliations: PartialAffiliation[]
 }
 
 export interface SmallExperimentMeta {
@@ -118,9 +125,20 @@ export interface SmallExperimentMeta {
     active: boolean
 }
 
+export interface PartialAffiliation {
+    id: number
+    name: string
+    description: string
+    color: string
+}
+
 export interface ExperimentData {
-    nickname: string
+    id: string
+    GOODId: number
+    username: string
+    tag: string
+    avatar: string
     stats: [number, number][]
-    affiliation: string
+    affiliations: number[]
     ar: number
-  }
+}

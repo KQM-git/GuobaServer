@@ -3,17 +3,20 @@ import { GetServerSideProps } from "next"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
+import { AffiliationSelector } from "../../components/Affiliation"
 import FormattedLink from "../../components/FormattedLink"
 import { LoginInfo } from "../../components/LoginInfo"
-import { getUserFromCtx, isUser } from "../../utils/db"
-import { cleanCopy, doFetch, getIfGOOD, isValidSubmission, validateChars, validateJson, validateUID, validateWeapons } from "../../utils/utils"
+import { getAffiliations, getUserFromCtx, isUser } from "../../utils/db"
+import { PartialAffiliation } from "../../utils/types"
+import { cleanCopy, doFetch, getIfGOOD, isGUOBAActive, isValidSubmission, validateChars, validateJson, validateUID, validateWeapons } from "../../utils/utils"
 
 
 interface Props {
-  user: User
+  user: User,
+  affiliations: PartialAffiliation[]
 }
 
-export default function SubmitPage({ user }: Props) {
+export default function SubmitPage({ user, affiliations }: Props) {
   const desc = "Submit your GOOD data to the GUOBA overlords!"
 
   const enkaDesc = "Your UID will be used for artifact verification (required) and server grouping. Note that since only America, Europe, Asia and SAR servers are supported by enka.network, only they are allowed."
@@ -27,6 +30,10 @@ export default function SubmitPage({ user }: Props) {
   const router = useRouter()
 
   const [goodText, setGoodText] = useState("")
+  const [hasChars, setHasChars] = useState(false)
+  const [hasWeapons, setHasWeapons] = useState(false)
+  const [uid, setUID] = useState("")
+  const [selectedAffiliations, setSelected] = useState([] as number[])
 
   const [toast, setToast] = useState("")
 
@@ -45,7 +52,7 @@ export default function SubmitPage({ user }: Props) {
     setGoodText(text)
     setValidation({
       ...validation,
-      ...validateJson(text, (document.getElementById("characters") as HTMLInputElement).checked, (document.getElementById("weapons") as HTMLInputElement).checked)
+      ...validateJson(text, hasChars, hasWeapons)
     })
   }
 
@@ -77,7 +84,7 @@ export default function SubmitPage({ user }: Props) {
           target="go-setting">Settings</FormattedLink> page under <i>Database Download</i>.
         This export can then be submitted <FormattedLink href="user/submit">here</FormattedLink>.
       </p>
-      <br/>
+      <br />
 
       <div className="font-semibold">GOOD File</div>
       <div className="flex w-full">
@@ -88,7 +95,6 @@ export default function SubmitPage({ user }: Props) {
           data-tip={validation.goodError || validation.goodWarn}
         >
           <textarea
-            id="good-json"
             className={`textarea textarea-bordered w-full font-mono ${validation.goodError ? "textarea-error" : ""} ${validation.goodWarn ? "textarea-warning" : ""}`}
             placeholder="Paste your GOOD json here"
             value={goodText}
@@ -96,7 +102,7 @@ export default function SubmitPage({ user }: Props) {
               setGoodText(e.target.value)
               setValidation({
                 ...validation,
-                ...validateJson(e.target.value, (document.getElementById("characters") as HTMLInputElement).checked, (document.getElementById("weapons") as HTMLInputElement).checked)
+                ...validateJson(e.target.value, hasChars, hasWeapons)
               })
             }}
           />
@@ -149,11 +155,14 @@ export default function SubmitPage({ user }: Props) {
           <input
             type="checkbox"
             className="checkbox checkbox-accent mx-3"
-            id="characters"
-            onChange={e => setValidation({
-              ...validation,
-              ...validateChars(e.target.checked, goodText)
-            })}
+            checked={hasChars}
+            onChange={e => {
+              setHasChars(e.target.checked)
+              setValidation({
+                ...validation,
+                ...validateChars(e.target.checked, goodText)
+              })
+            }}
           />
           {getIfGOOD(goodText)?.characters?.length ?
             <span className="font-thin">Found {getIfGOOD(goodText)?.characters?.length} characters.</span>
@@ -174,11 +183,14 @@ export default function SubmitPage({ user }: Props) {
           <input
             type="checkbox"
             className="checkbox checkbox-accent mx-3 "
-            id="weapons"
-            onChange={e => setValidation({
-              ...validation,
-              ...validateWeapons(e.target.checked, goodText)
-            })}
+            checked={hasWeapons}
+            onChange={e => {
+              setHasWeapons(e.target.checked)
+              setValidation({
+                ...validation,
+                ...validateWeapons(e.target.checked, goodText)
+              })
+            }}
           />
           {getIfGOOD(goodText)?.weapons?.length ?
             <span className="font-thin">Found {getIfGOOD(goodText)?.weapons?.length} weapons.</span>
@@ -198,22 +210,25 @@ export default function SubmitPage({ user }: Props) {
             placeholder="Type here"
             maxLength={9}
             className={`input input-bordered input-sm w-full max-w-xs mx-3 ${validation.uidError ? "outline outline-error" : ""}`}
-            id="uid"
-            onChange={e => setValidation({
-              ...validation,
-              ...validateUID(e.target.value)
-            })}
+            value={uid}
+            onChange={e => {
+              setUID(e.target.value)
+              setValidation({
+                ...validation,
+                ...validateUID(e.target.value)
+              })
+            }}
           />
         </label>
       </div>
       <br />
 
+      <AffiliationSelector selectedAffiliations={selectedAffiliations} setSelected={setSelected} affiliations={affiliations} />
+
       <button
         className={`btn btn-primary w-full ${Object.values(validation).some(x => x && x.length > 0) ? "btn-disabled" : ""} my-2`}
         onClick={async () => {
           try {
-            const hasChars = (document.getElementById("characters") as HTMLInputElement).checked, hasWeapons = (document.getElementById("weapons") as HTMLInputElement).checked
-            const uid = (document.getElementById("uid") as HTMLInputElement).value
             if (!isValidSubmission(goodText, hasChars, hasWeapons, uid)) {
               setToast("Invalid submission! Please check the required things")
               return
@@ -225,7 +240,8 @@ export default function SubmitPage({ user }: Props) {
             }
             await doFetch("/api/submit", JSON.stringify({
               hasChars, hasWeapons,
-              uid, good: clean
+              uid, good: clean,
+              affiliations: selectedAffiliations
             }), setToast, router)
           } catch (error) {
             setToast(`An error occurred while submitting data:\n${error}`)
@@ -247,11 +263,20 @@ export default function SubmitPage({ user }: Props) {
   )
 }
 
+
 export const getServerSideProps: GetServerSideProps<Props> = async function (ctx) {
   const user = await getUserFromCtx<Props>(ctx)
 
   if (!isUser(user))
     return user
+
+  if (!isGUOBAActive())
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false
+      }
+    }
 
   if (user.GOODId !== null)
     return {
@@ -261,5 +286,5 @@ export const getServerSideProps: GetServerSideProps<Props> = async function (ctx
       }
     }
 
-  return { props: { user } }
+  return { props: { user, affiliations: await getAffiliations(user.id) } }
 }

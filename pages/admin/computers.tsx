@@ -136,7 +136,7 @@ export default function ComputersPage({ user, computers, token }: Props) {
             baseURL: window.location.origin,
             token
           }, undefined, 2))
-          await doFetch("/api/create-computer", (document.getElementById("token") as HTMLInputElement).value, setToast, router)
+          await doFetch("/api/create-computer", token, setToast, router)
         }}
       >
         CREATE COMPUTER

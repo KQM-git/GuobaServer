@@ -50,6 +50,9 @@ export default function AdminPage({ user }: Props) {
       <button className="btn btn-primary m-2" onClick={() => router.push("/admin/users")}>
         Manage users
       </button>
+      <button className="btn btn-primary m-2" onClick={() => router.push("/admin/affiliations")}>
+        Manage affiliations
+      </button>
 
       {toast.length > 0 &&
         <div className="toast">

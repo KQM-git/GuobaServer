@@ -21,10 +21,11 @@ model User {
   admin          Boolean         @default(false)
   premium        Boolean         @default(false)
 
-  ar          Int?
-  arXP        Int?
-  affiliation String?
-  uid         String?
+  ar           Int?
+  arXP         Int?
+  affiliations Affiliation[]
+  uid          String?
+  guilds       Guild[]
 
   currentGOOD GOOD? @relation("current", fields: [GOODId], references: [id])
   GOODId      Int?  @unique
@@ -34,6 +35,24 @@ model User {
   experimentData     ExperimentData[]
   computers          Computer[]
   calculationQueue   CalculationQueue[]
+}
+
+model Guild {
+  id          String        @id
+  name        String
+  users       User[]
+  affiliation Affiliation[]
+}
+
+model Affiliation {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String
+  color       String
+  guild       Guild?  @relation(fields: [serverId], references: [id])
+  serverId    String?
+
+  users   User[]
 }
 
 model Authentication {

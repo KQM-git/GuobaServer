@@ -2,11 +2,11 @@ import fetch from "node-fetch"
 import { parse, serialize } from "cookie"
 import { config } from "../../utils/config"
 import { NextApiRequest, NextApiResponse } from "next"
-import { DiscordUser } from "../../utils/types"
+import { DiscordGuild, DiscordUser } from "../../utils/types"
 import { registerOrLogin } from "../../utils/db"
 import { randomUUID } from "crypto"
 
-const scope = ["identify"].join(" ")
+const scope = ["identify", "guilds"].join(" ")
 const REDIRECT_URI = `${config.appUri}/api/oauth`
 
 const OAUTH_QS = new URLSearchParams({
@@ -55,9 +55,17 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
   if (!("id" in me))
     return res.redirect(OAUTH_URI)
 
+
+  const guilds: DiscordGuild[] | { unauthorized: true } = await fetch("http://discord.com/api/users/@me/guilds", {
+    headers: { Authorization: `${token_type} ${access_token}` },
+  }).then((res) => res.json())
+
+  if (!Array.isArray(guilds))
+    return res.redirect(OAUTH_URI)
+
   const token = randomUUID().replace(/-/g, "")
 
-  await registerOrLogin(me, token)
+  await registerOrLogin(me, guilds, token)
 
   res.setHeader(
     "Set-Cookie",

@@ -3,7 +3,7 @@ import { parse, serialize } from "cookie"
 import { GetServerSidePropsContext, GetServerSidePropsResult, PreviewData } from "next"
 import { ParsedUrlQuery } from "querystring"
 import { config } from "./config"
-import { DiscordUser, ExperimentInfo, GOODData } from "./types"
+import { DiscordGuild, DiscordUser, ExperimentInfo, GOODData } from "./types"
 export const prisma = new PrismaClient()
 
 export async function getExperimentList() {
@@ -31,39 +31,48 @@ export async function fetchExperimentData(slug: string) {
     })
 }
 
-export async function registerOrLogin(user: DiscordUser, token: string) {
+export async function registerOrLogin(user: DiscordUser, guilds: DiscordGuild[], token: string) {
     console.log(`Creating/updating user records for ${user.id} (${user.username}#${user.discriminator})`)
-    await prisma.user.upsert({
-        where: {
-            id: user.id
-        },
-        create: {
-            id: user.id,
-            avatar: user.avatar,
-            username: user.username,
-            tag: user.discriminator,
-            admin: user.id == "127393188729192448",
-        },
-        update: {
-            avatar: user.avatar,
-            username: user.username,
-            tag: user.discriminator,
-        },
-        select: { id: true }
-    })
-    await prisma.authentication.upsert({
-        where: {
-            userId: user.id
-        },
-        create: {
-            token,
-            userId: user.id
-        },
-        update: {
-            token
-        },
-        select: { userId: true }
-    })
+    await prisma.$transaction([
+        ...guilds.map(g => prisma.guild.upsert({ where: { id: g.id }, create: { id: g.id, name: g.name }, update: { name: g.name } })),
+        prisma.user.upsert({
+            where: {
+                id: user.id
+            },
+            create: {
+                id: user.id,
+                avatar: user.avatar,
+                username: user.username,
+                tag: user.discriminator,
+                admin: user.id == "127393188729192448",
+                guilds: {
+                    connect: guilds.map(x => ({ id: x.id }))
+                }
+            },
+            update: {
+                avatar: user.avatar,
+                username: user.username,
+                tag: user.discriminator,
+                guilds: {
+                    set: guilds.map(x => ({ id: x.id }))
+                }
+            },
+            select: { id: true }
+        }),
+        prisma.authentication.upsert({
+            where: {
+                userId: user.id
+            },
+            create: {
+                token,
+                userId: user.id
+            },
+            update: {
+                token
+            },
+            select: { userId: true }
+        })
+    ])
 }
 
 export async function logout(cookie?: string) {
@@ -169,12 +178,20 @@ export async function getUser(id: string, showAll: boolean) {
                         }
                     }
                 }
+            },
+            affiliations: {
+                select: {
+                    id: true,
+                    name: true,
+                    description: true,
+                    color: true,
+                }
             }
         }
     })
 }
 
-export async function addGOOD(user: string, good: GOODData, hasChars: boolean, hasWeapons: boolean, uid: string) {
+export async function addGOOD(user: string, good: GOODData, hasChars: boolean, hasWeapons: boolean, uid: string, affiliations: number[]) {
     console.log(`Adding GOOD for ${user} (UID: ${uid})`)
     await prisma.$transaction([
         prisma.user.update({
@@ -182,7 +199,12 @@ export async function addGOOD(user: string, good: GOODData, hasChars: boolean, h
                 id: user
             },
             data: {
-                uid
+                uid,
+                affiliations: {
+                    connect: affiliations.map(x => ({
+                        id: x
+                    }))
+                }
             },
             select: { id: true }
         }),
@@ -254,7 +276,7 @@ export async function getComputers() {
     })
 }
 
-export async function getExperiments(): Promise<ExperimentInfo[]>{
+export async function getExperiments(): Promise<ExperimentInfo[]> {
     return await prisma.experiment.findMany({
         orderBy: { id: "asc" },
         include: {
@@ -264,12 +286,50 @@ export async function getExperiments(): Promise<ExperimentInfo[]>{
     })
 }
 
-export async function getExperiment(id: number): Promise<ExperimentInfo | null>{
+export async function getExperiment(id: number): Promise<ExperimentInfo | null> {
     return await prisma.experiment.findUnique({
         where: { id },
         include: {
             creator: true,
             _count: { select: { experimentData: true } }
+        }
+    })
+}
+
+export async function getAffiliations(id: string) {
+    const user = (await prisma.user.findUnique({
+        where: {
+            id
+        },
+        include: {
+            guilds: {
+                select: { id: true }
+            },
+            affiliations: {
+                select: { id: true }
+            }
+        }
+    }))
+
+    return await prisma.affiliation.findMany({
+        select: {
+            id: true,
+            name: true,
+            description: true,
+            color: true
+        },
+        where: {
+            OR: [{
+                serverId: null
+            }, {
+                serverId: {
+                    in: user?.guilds.map(x => x.id) ?? []
+                }
+            }, {
+                id: {
+                    in: user?.affiliations.map(x => x.id) ?? []
+                }
+            }]
         }
     })
 }

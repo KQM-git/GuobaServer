@@ -4,12 +4,13 @@ import Head from "next/head"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
+import { AffiliationLabel } from "../../../components/Affiliation"
 import { DiscordUser } from "../../../components/DiscordAvatar"
 import FormattedLink from "../../../components/FormattedLink"
 import { LoginInfo } from "../../../components/LoginInfo"
 import { getUser, getUserFromCtx, isUser } from "../../../utils/db"
 import { DetailedUserInfo, GOODData } from "../../../utils/types"
-import { dateFormatter, copy, mergeTemplate, doFetch } from "../../../utils/utils"
+import { copy, dateFormatter, doFetch, mergeTemplate } from "../../../utils/utils"
 
 interface Props {
   user: User,
@@ -107,13 +108,8 @@ export default function UserPage({ user, targetUser }: Props) {
       </label>
 
       <label className="justify-start label" >
-        <span className="font-semibold">Affiliation</span>
-        <input
-          type="text"
-          className="input input-bordered input-sm w-full max-w-xs mx-3"
-          disabled
-          value={targetUser.affiliation ?? "?"}
-        />
+        <span className="font-semibold">Affiliations</span>
+        <div className="m-1">{targetUser.affiliations.map(a => <AffiliationLabel key={a.id} affiliation={a} />)}</div>
       </label>
 
       <label className="justify-start label" >

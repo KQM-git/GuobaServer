@@ -15,7 +15,7 @@ export function clean(input: string) {
     return input.replace(/ ?\$\{.*?\}/g, "").replace(/ ?\(.*?\)/g, "").replace(/[*[\]]/g, "").split("\n")[0]
 }
 
-const end = new Date("2022-08-01").getTime()
+const end = new Date("2022-09-01").getTime()
 export function isGUOBAActive() {
     return Date.now() < end
 }

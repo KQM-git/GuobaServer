@@ -2,6 +2,7 @@ import { User } from "@prisma/client"
 import { GetServerSideProps } from "next"
 import Head from "next/head"
 import Link from "next/link"
+import { AffiliationLabel } from "../../../components/Affiliation"
 import { DiscordUser } from "../../../components/DiscordAvatar"
 import FormattedLink from "../../../components/FormattedLink"
 import { LoginInfo } from "../../../components/LoginInfo"
@@ -61,7 +62,7 @@ export default function UsersPage({ user, users }: Props) {
               <DiscordUser user={c} />
             </th>
             <th suppressHydrationWarning>{dateFormatter.format(c.createdOn)}</th>
-            <th>{c.affiliation}</th>
+            <td>{c.affiliations.map(a => <AffiliationLabel key={a.id} affiliation={a} />)}</td>
             <th>
               <input
                 type="checkbox"
@@ -115,6 +116,14 @@ export const getServerSideProps: GetServerSideProps<Props> = async function (ctx
             },
             currentGOOD: {
                 select: { verified: true }
+            },
+            affiliations: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                color: true
+              }
             }
         }
     })
