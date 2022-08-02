@@ -498,7 +498,7 @@ export async function getStaticProps(context: GetStaticPropsContext): Promise<Ge
         experimentData: {
           include: {
             user: {
-              select: { avatar: true, username: true, tag: true, affiliations: {
+              select: { avatar: true, username: true, tag: true, GOODId: true, affiliations: {
                 select: {
                   id: true,
                   name: true,
@@ -515,8 +515,9 @@ export async function getStaticProps(context: GetStaticPropsContext): Promise<Ge
       return {
         notFound: true
       }
+
     const affiliations: Record<number, PartialAffiliation> = {}
-    const experimentData = data.experimentData.map(d => ({
+    const experimentData = data.experimentData.filter(d => d.GOODId == d.user.GOODId).map(d => ({
       affiliations: d.user.affiliations.map(x => {
         if (!affiliations[x.id]) affiliations[x.id] = x
         return x.id

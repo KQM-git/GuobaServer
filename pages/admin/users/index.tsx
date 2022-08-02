@@ -42,8 +42,8 @@ export default function UsersPage({ user, users }: Props) {
           <tr>
             <th>User</th>
             <th>Created on</th>
-            <th>Affiliation</th>
-            <th>Has verified GOOD</th>
+            <th>Affiliations</th>
+            <th>Verified</th>
             <th>UID</th>
             <th>Banned</th>
             <th>Processed</th>
