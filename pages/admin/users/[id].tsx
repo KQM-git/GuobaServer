@@ -7,6 +7,7 @@ import { useEffect, useState } from "react"
 import { AffiliationLabel } from "../../../components/Affiliation"
 import { DiscordUser } from "../../../components/DiscordAvatar"
 import FormattedLink from "../../../components/FormattedLink"
+import { SelectInput } from "../../../components/Input"
 import { LoginInfo } from "../../../components/LoginInfo"
 import { getUser, getUserFromCtx, isUser } from "../../../utils/db"
 import { DetailedUserInfo, GOODData } from "../../../utils/types"
@@ -108,6 +109,27 @@ export default function UserPage({ user, targetUser }: Props) {
         />
       </label>
 
+
+      <label className="justify-start label" >
+        <span className="font-semibold">Ping</span>
+        <input
+          type="text"
+          className="input input-bordered input-sm w-full max-w-xs mx-3"
+          disabled
+          value={targetUser.ping ?? "?"}
+        />
+      </label>
+
+      <label className="justify-start label" >
+        <span className="font-semibold">Stable ping</span>
+        <input
+          type="checkbox"
+          className="checkbox checkbox-accent mx-3"
+          disabled
+          checked={targetUser.stablePing ?? false}
+        />
+      </label>
+
       <label className="justify-start label" >
         <span className="font-semibold">Affiliations</span>
         <div className="m-1">{targetUser.affiliations.map(a => <AffiliationLabel key={a.id} affiliation={a} />)}</div>
@@ -200,13 +222,26 @@ export default function UserPage({ user, targetUser }: Props) {
         <button
           className="btn btn-error m-2"
           onClick={async () => {
-            await doFetch("/api/unlink-good", JSON.stringify({
+            await doFetch("/api/relink-good", JSON.stringify({
               target: targetUser.id
             }), setToast, router)
           }}
         >
           Unlink GOOD data
         </button>
+      </div>}
+      {!targetUser.currentGOOD && targetUser.goods && <div>
+        <SelectInput
+          label="Relink GOOD"
+          options={[
+            { label: "Select GOOD", value: -1 },
+            ...targetUser.goods.map(x => ({ label: x.id, value: x.id }))
+          ]}
+          value={-1}
+          set={async (newValue) => await doFetch("/api/relink-good", JSON.stringify({
+            target: targetUser.id,
+            goodId: newValue.value
+          }), setToast, router)} />
       </div>}
 
       {toast.length > 0 &&

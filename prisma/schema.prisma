@@ -26,6 +26,8 @@ model User {
   affiliations Affiliation[]
   uid          String?
   guilds       Guild[]
+  ping         Int?
+  stablePing   Boolean?
 
   currentGOOD GOOD? @relation("current", fields: [GOODId], references: [id])
   GOODId      Int?  @unique

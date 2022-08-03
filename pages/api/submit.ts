@@ -16,9 +16,12 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
             uid: string
             good: GOODData
             affiliations: number[]
+            ping: number
+            stablePing: boolean
         } = JSON.parse(req.body)
 
-        if (typeof body.hasChars !== "boolean" || typeof body.hasWeapons !== "boolean" || typeof body.uid !== "string" || !isGOOD(body.good))
+        if (typeof body.hasChars !== "boolean" || typeof body.hasWeapons !== "boolean" || typeof body.uid !== "string" || !isGOOD(body.good)
+            || typeof body.ping !== "number" || typeof body.stablePing !== "boolean")
             return res.send({ error: "Invalid request!" })
 
         if (!isValidSubmission(JSON.stringify(body.good), body.hasChars, body.hasWeapons, body.uid))
@@ -30,7 +33,7 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
         if (!isGUOBAActive())
             return res.send({ error: "GUOBA submissions have been closed!" })
 
-        await addGOOD(user.id, body.good, body.hasChars, body.hasWeapons, body.uid, body.affiliations)
+        await addGOOD(user.id, body.good, body.hasChars, body.hasWeapons, body.uid, body.affiliations, body.ping, body.stablePing)
         return res.send({ redirect: "/user/verification" })
     } catch (error) {
         return res.send({ error: "An unknown error occurred!" })

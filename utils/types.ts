@@ -118,6 +118,9 @@ export type DetailedUserInfo = User & {
         verificationArtifacts: any[]
         verifiedTime: Date | null
     } | null
+    goods?: {
+        id: number
+    }[]
     affiliations: PartialAffiliation[]
 }
 

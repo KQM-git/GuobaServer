@@ -149,6 +149,7 @@ export async function getUser(id: string, showAll: boolean) {
             id
         },
         include: {
+            ...(showAll ? { goods:{ select: { id: true } } } : {}),
             currentGOOD: {
                 select: {
                     createdOn: true,
@@ -191,7 +192,7 @@ export async function getUser(id: string, showAll: boolean) {
     })
 }
 
-export async function addGOOD(user: string, good: GOODData, hasChars: boolean, hasWeapons: boolean, uid: string, affiliations: number[]) {
+export async function addGOOD(user: string, good: GOODData, hasChars: boolean, hasWeapons: boolean, uid: string, affiliations: number[], ping: number, stablePing: boolean) {
     console.log(`Adding GOOD for ${user} (UID: ${uid})`)
     await prisma.$transaction([
         prisma.user.update({
@@ -200,6 +201,7 @@ export async function addGOOD(user: string, good: GOODData, hasChars: boolean, h
             },
             data: {
                 uid,
+                ping, stablePing,
                 affiliations: {
                     connect: affiliations.map(x => ({
                         id: x

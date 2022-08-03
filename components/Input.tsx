@@ -23,7 +23,7 @@ export function CheckboxInput({
   </label>
 }
 
-export function SelectInput({ value, set, label, options }: { value: string, set: (newValue: { value: string; label: string; }) => unknown, options: { value: string, label: string }[], label: string }) {
+export function SelectInput<T extends string | number>({ value, set, label, options }: { value: T, set: (newValue: { value: T; label: string | number; }) => unknown, options: { value: T, label: string | number }[], label: string }) {
   return <div><label>
     {label}
     <select
@@ -107,7 +107,7 @@ export function TextInput({
   placeholder?: string
   validation?: (newValue: string) => boolean
 }) {
-  return <label className={`cursor-pointer label justify-start ${validation ? validation(value) : value.length == 0 ? "text-error" : ""}`} >
+  return <label className={`cursor-pointer label justify-start ${(validation ? validation(value) : value.length == 0) ? "text-error" : ""}`} >
     <span className={labelClass}>{label}</span>
     <input
       type="text"

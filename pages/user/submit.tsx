@@ -5,6 +5,7 @@ import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
 import { AffiliationSelector } from "../../components/Affiliation"
 import FormattedLink from "../../components/FormattedLink"
+import { CheckboxInput, NumberInput } from "../../components/Input"
 import { LoginInfo } from "../../components/LoginInfo"
 import { getAffiliations, getUserFromCtx, isUser } from "../../utils/db"
 import { PartialAffiliation } from "../../utils/types"
@@ -34,6 +35,9 @@ export default function SubmitPage({ user, affiliations }: Props) {
   const [hasWeapons, setHasWeapons] = useState(false)
   const [uid, setUID] = useState("")
   const [selectedAffiliations, setSelected] = useState([] as number[])
+
+  const [ping, setPing] = useState(0)
+  const [stablePing, setStablePing] = useState(false)
 
   const [toast, setToast] = useState("")
 
@@ -223,6 +227,10 @@ export default function SubmitPage({ user, affiliations }: Props) {
       </div>
       <br />
 
+      <NumberInput label="Average in-game ping" value={ping} set={setPing} />
+
+      <CheckboxInput label="Stable in-game ping" labelClass="font-semibold" value={stablePing} set={setStablePing} />
+
       <AffiliationSelector selectedAffiliations={selectedAffiliations} setSelected={setSelected} affiliations={affiliations} />
 
       <button
@@ -241,7 +249,8 @@ export default function SubmitPage({ user, affiliations }: Props) {
             await doFetch("/api/submit", JSON.stringify({
               hasChars, hasWeapons,
               uid, good: clean,
-              affiliations: selectedAffiliations
+              affiliations: selectedAffiliations,
+              ping, stablePing
             }), setToast, router)
           } catch (error) {
             setToast(`An error occurred while submitting data:\n${error}`)
