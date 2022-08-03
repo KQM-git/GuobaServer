@@ -9,12 +9,15 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
     if (!user.admin) return res.send({ error: "No permission!" })
 
     try {
-        const { id, name, slug, active, publicExp } = JSON.parse(req.body)
+        const { id, name, slug, active, publicExp, x, y, notes } = JSON.parse(req.body)
         if (!id) return res.send({ error: "Invalid id?" })
         if (!name) return res.send({ error: "Invalid name!" })
         if (!slug || !slug.match(/^[a-z0-9-]+$/)) return res.send({ error: "Invalid slug!" })
         if (typeof active != "boolean") return res.send({ error: "Invalid active state!" })
         if (typeof publicExp != "boolean") return res.send({ error: "Invalid public state!" })
+        if (typeof x != "string") return res.send({ error: "Invalid x!" })
+        if (typeof y != "string" || !y) return res.send({ error: "Invalid y!" })
+        if (typeof notes != "string") return res.send({ error: "Invalid notes!" })
 
         console.log(`Updating experiment ${name} for ${user.id}`)
 
@@ -26,7 +29,10 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
                 name,
                 slug,
                 active,
-                public: publicExp
+                public: publicExp,
+                x,
+                y,
+                note: notes
             }
         })
 

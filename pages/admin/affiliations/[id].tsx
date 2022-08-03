@@ -7,6 +7,7 @@ import { useEffect, useState } from "react"
 import { AffiliationLabel } from "../../../components/Affiliation"
 import { DiscordUser } from "../../../components/DiscordAvatar"
 import FormattedLink from "../../../components/FormattedLink"
+import { TextInput } from "../../../components/Input"
 import { LoginInfo } from "../../../components/LoginInfo"
 import { getUser, getUserFromCtx, isUser, prisma } from "../../../utils/db"
 import { DetailedUserInfo, GOODData } from "../../../utils/types"
@@ -48,6 +49,7 @@ export default function UserPage({ user, affiliation }: Props) {
 
       <div className="text-sm breadcrumbs">
         <ul>
+          <li><Link href={"/"}>Home</Link></li>
           <li><Link href={"/admin"}>Admin stuff</Link></li>
           <li><Link href={"/admin/affiliations"}>Affiliation management</Link></li>
           <li><span><AffiliationLabel affiliation={affiliation} /></span></li>
@@ -58,25 +60,9 @@ export default function UserPage({ user, affiliation }: Props) {
       <h3 className="text-xl font-semibold py-2">Manage <AffiliationLabel affiliation={affiliation} /></h3>
 
 
-      <label className={`cursor-pointer label justify-start ${name.length == 0 ? "text-error" : ""}`} >
-        <span className="font-semibold">Name</span>
-        <input
-          type="text"
-          className={"input input-bordered input-sm mx-3"}
-          value={name}
-          onChange={e => setName(e.target.value)}
-        />
-      </label>
+      <TextInput label="Name" set={setName} value={name} />
 
-      <label className={`cursor-pointer label justify-start ${description.length == 0 ? "text-error" : ""}`} >
-        <span className="font-semibold">Description</span>
-        <input
-          type="text"
-          className={"input input-bordered input-sm max-w-md w-full mx-3"}
-          value={description}
-          onChange={e => setDescription(e.target.value)}
-        />
-      </label>
+      <TextInput label="Description" set={setDescription} value={description} />
 
       <label className="cursor-pointer label justify-start" >
         <span className="font-semibold">Color</span>
@@ -88,15 +74,7 @@ export default function UserPage({ user, affiliation }: Props) {
         />
       </label>
 
-      <label className={`cursor-pointer label justify-start ${!(server.match(/^\d{17,21}$/) || server.length == 0) ? "text-error" : ""}`} >
-        <span className="font-semibold">Server ID</span>
-        <input
-          type="text"
-          className={"input input-bordered input-sm mx-3"}
-          value={server}
-          onChange={e => setServer(e.target.value)}
-        />
-      </label>
+      <TextInput label="Server ID" set={setServer} value={server} validation={(value) => !(value.match(/^\d{17,21}$/) || value.length == 0)}/>
 
       <div>
         Preview: <AffiliationLabel affiliation={{ color, description, id: 0, name }} />

@@ -333,6 +333,7 @@ export function download(filename: string, contents: string, mime = "text/plain"
     link.href = url
     link.click()
     document.body.removeChild(link) // remove the link when done
+    URL.revokeObjectURL(url)
 }
 
 export async function doFetch(url: `/api/${string}`, body: string, setToast: (response: string) => void, router: NextRouter) {

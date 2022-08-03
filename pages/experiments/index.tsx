@@ -1,5 +1,6 @@
 import { GetStaticPropsResult } from "next"
 import Head from "next/head"
+import Link from "next/link"
 import FormattedLink from "../../components/FormattedLink"
 import { getExperimentList } from "../../utils/db"
 import { SmallExperimentMeta } from "../../utils/types"
@@ -22,6 +23,7 @@ export default function ExperimentsPage({ location, experiments }: Props & { loc
 
       <div className="text-sm breadcrumbs">
         <ul>
+          <li><Link href={"/"}>Home</Link></li>
           <li>Experiments</li>
         </ul>
       </div>

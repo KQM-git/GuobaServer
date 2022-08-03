@@ -52,6 +52,7 @@ export default function ComputersPage({ user, computers, token }: Props) {
 
       <div className="text-sm breadcrumbs">
         <ul>
+          <li><Link href={"/"}>Home</Link></li>
           <li><Link href={"/admin"}>Admin stuff</Link></li>
           <li>Computer management</li>
         </ul>

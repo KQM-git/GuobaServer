@@ -6,10 +6,11 @@ import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
 import { DiscordUser } from "../../../components/DiscordAvatar"
 import FormattedLink from "../../../components/FormattedLink"
+import { TextInput } from "../../../components/Input"
 import { LoginInfo } from "../../../components/LoginInfo"
 import { getExperiments, getUserFromCtx, isUser, prisma } from "../../../utils/db"
 import { ExperimentInfo } from "../../../utils/types"
-import { doFetch, urlify } from "../../../utils/utils"
+import { doFetch, getIfGOOD, urlify } from "../../../utils/utils"
 
 interface Props {
   user: User,
@@ -25,6 +26,25 @@ export default function ExperimentsPage({ user, experiments, totalTimes }: Props
   const [templateText, setTemplateText] = useState("")
   const [name, setName] = useState("")
   const [slug, setSlug] = useState("")
+  const [x, setX] = useState("")
+  const [y, setY] = useState("")
+  const [notes, setNotes] = useState("")
+
+  useEffect(() => {
+    if (y === "" && x === "" && templateText) {
+      try {
+        const good = JSON.parse(templateText).template
+        const target = good.buildSettings[0].optimizationTarget
+        if (target[0] == "custom")
+          setY(good.characters[0].customMultiTarget[0].name)
+        else
+          setY(target.join(" ").replace(/_$/, "%").replace(/^[a-z]/, (dn: string) => dn.toUpperCase()))
+        setX(good.buildSettings[0].plotBase.replace(/_$/, "%").replace(/^[a-z]/, (dn: string) => dn.toUpperCase()))
+      } catch (error) {
+        setToast("Invalid template!")
+      }
+    }
+  }, [templateText, x, y])
 
   useEffect(() => {
     if (toast.length > 0) {
@@ -55,6 +75,7 @@ export default function ExperimentsPage({ user, experiments, totalTimes }: Props
 
       <div className="text-sm breadcrumbs">
         <ul>
+          <li><Link href={"/"}>Home</Link></li>
           <li><Link href={"/admin"}>Admin stuff</Link></li>
           <li>Experiment management</li>
         </ul>
@@ -114,6 +135,7 @@ export default function ExperimentsPage({ user, experiments, totalTimes }: Props
       <div className="divider" />
       <h3 className="text-xl font-semibold pb-2">Create experiment</h3>
       <div className="font-semibold">Template File</div>
+      <p>View the <FormattedLink href="/template-creator">template creator</FormattedLink> to convert your GOOD database into a template</p>
       <div className="flex w-full tooltip tooltip-warning" data-tip="This cannot be edited once submitted!">
         <div
           className={"flex-grow rounded-box place-items-center"}
@@ -163,26 +185,14 @@ export default function ExperimentsPage({ user, experiments, totalTimes }: Props
         />
       </label>
 
-      <label className="cursor-pointer label justify-start" >
-        <span className="font-semibold">Name</span>
-        <input
-          type="text"
-          className={"input input-bordered input-sm w-full max-w-xs mx-3"}
-          value={name}
-          onChange={e => setName(e.target.value)}
-        />
-      </label>
+      <TextInput label="Name" value={name} set={setName}/>
 
-      <label className="cursor-pointer label justify-start" >
-        <span className="font-semibold">Slug (.../experiments/[slug])</span>
-        <input
-          type="text"
-          className={"input input-bordered input-sm w-full max-w-xs mx-3"}
-          placeholder={urlify(name, true)}
-          value={slug}
-          onChange={e => setSlug(e.target.value)}
-        />
-      </label>
+      <TextInput label="Slug (.../experiments/[slug])" placeholder={urlify(name, true)} value={slug} set={setSlug} validation={() => true}/>
+
+      <TextInput label="X-axis (leave empty for one-shots)" value={x} set={setX} validation={() => true}/>
+      <TextInput label="Y-axis" value={y} set={setY} />
+
+      <TextInput label="Notes" value={notes} set={setNotes} validation={() => true}/>
 
       <button
         className={"btn btn-primary my-2"}
@@ -191,7 +201,8 @@ export default function ExperimentsPage({ user, experiments, totalTimes }: Props
             name,
             slug: slug || urlify(name, true),
             char: getChar(templateText),
-            template: JSON.parse(templateText).template
+            template: JSON.parse(templateText).template,
+            x, y, notes
           }), setToast, router)
         }}
       >

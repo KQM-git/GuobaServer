@@ -52,6 +52,7 @@ export default function UserPage({ user, targetUser }: Props) {
 
       <div className="text-sm breadcrumbs">
         <ul>
+          <li><Link href={"/"}>Home</Link></li>
           <li><Link href={"/admin"}>Admin stuff</Link></li>
           <li><Link href={"/admin/users"}>User management</Link></li>
           <li><span><DiscordUser user={targetUser} /></span></li>

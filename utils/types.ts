@@ -58,8 +58,8 @@ interface IWeapon {
     level: number // 1-90 inclusive
     ascension: number // 0-6 inclusive. need to disambiguate 80/90 or 80/80
     refinement: number // 1-5 inclusive
-    // location: string | "" // where "" means not equipped.
-    // lock: boolean // Whether the weapon is locked in game.
+    location?: string | "" // where "" means not equipped.
+    lock?: boolean // Whether the weapon is locked in game.
 }
 
 interface ICharacter {
@@ -72,6 +72,8 @@ interface ICharacter {
         skill: number
         burst: number
     }
+    conditional?: { [k: string]: any }
+    customMultiTarget?: any[]
 }
 
 export type ComputerInfo = Computer & {

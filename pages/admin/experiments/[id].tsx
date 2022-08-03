@@ -4,6 +4,7 @@ import Head from "next/head"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
+import { CheckboxInput, TextInput } from "../../../components/Input"
 import { LoginInfo } from "../../../components/LoginInfo"
 import { getExperiment, getUserFromCtx, isUser } from "../../../utils/db"
 import { ExperimentInfo } from "../../../utils/types"
@@ -24,6 +25,9 @@ export default function ExperimentsPage({ user, experiment }: Props) {
   const [slug, setSlug] = useState(experiment.slug)
   const [publicExp, setPublicExp] = useState(experiment.public)
   const [active, setActive] = useState(experiment.active)
+  const [x, setX] = useState(experiment.x)
+  const [y, setY] = useState(experiment.y)
+  const [notes, setNotes] = useState(experiment.note)
 
   useEffect(() => {
     if (toast.length > 0) {
@@ -37,7 +41,7 @@ export default function ExperimentsPage({ user, experiment }: Props) {
   return (
     <main className="max-w-5xl w-full px-1">
       <Head>
-        <title>Manage {experiment.name} | The GUOBA Project</title>
+        <title>{`Manage ${experiment.name} | The GUOBA Project`}</title>
         <meta name="twitter:card" content="summary" />
         <meta property="og:title" content="Manage experiment | The GUOBA Project" />
         <meta property="og:description" content={desc} />
@@ -46,6 +50,7 @@ export default function ExperimentsPage({ user, experiment }: Props) {
 
       <div className="text-sm breadcrumbs">
         <ul>
+          <li><Link href={"/"}>Home</Link></li>
           <li><Link href={"/admin"}>Admin stuff</Link></li>
           <li><Link href={"/admin/experiments"}>Experiment management</Link></li>
           <li>{experiment.name}</li>
@@ -74,46 +79,18 @@ export default function ExperimentsPage({ user, experiment }: Props) {
         />
       </label>
 
-      <label className="cursor-pointer label justify-start" >
-        <span className="font-semibold">Name</span>
-        <input
-          type="text"
-          className={"input input-bordered input-sm w-full max-w-xs mx-3"}
-          value={name}
-          onChange={e => setName(e.target.value)}
-        />
-      </label>
+      <TextInput label="Name" value={name} set={setName}/>
 
-      <label className="cursor-pointer label justify-start" >
-        <span className="font-semibold">Slug (.../experiments/[slug])</span>
-        <input
-          type="text"
-          className={"input input-bordered input-sm w-full max-w-xs mx-3"}
-          placeholder={urlify(name, true)}
-          value={slug}
-          onChange={e => setSlug(e.target.value)}
-        />
-      </label>
+      <TextInput label="Slug (.../experiments/[slug])" placeholder={urlify(name, true)} value={slug} set={setSlug}/>
 
-      <label className="cursor-pointer label justify-start" >
-        <span className="font-semibold">List on homepage</span>
-        <input
-          type="checkbox"
-          className="checkbox checkbox-accent mx-3"
-          onChange={e => setPublicExp(e.target.checked)}
-          checked={publicExp}
-        />
-      </label>
+      <TextInput label="X-axis (leave empty for one-shots)" value={x} set={setX} validation={() => true}/>
+      <TextInput label="Y-axis" value={y} set={setY} />
 
-      <label className="cursor-pointer label justify-start" >
-        <span className="font-semibold">Actively start processing data</span>
-        <input
-          type="checkbox"
-          className="checkbox checkbox-accent mx-3"
-          onChange={e => setActive(e.target.checked)}
-          checked={active}
-        />
-      </label>
+      <TextInput label="Notes" value={notes} set={setNotes} validation={() => true}/>
+
+      <CheckboxInput label="List on homepage" labelClass="font-semibold" set={setPublicExp} value={publicExp} />
+
+      <CheckboxInput label="Actively start processing data" labelClass="font-semibold" set={setActive} value={active} />
 
       <button
         className={"btn btn-primary my-2"}
@@ -123,7 +100,8 @@ export default function ExperimentsPage({ user, experiment }: Props) {
             name,
             slug: slug || urlify(name, true),
             active,
-            publicExp
+            publicExp,
+            x, y, notes
           }), setToast, router)
         }}
       >
@@ -140,15 +118,6 @@ export default function ExperimentsPage({ user, experiment }: Props) {
         </div>}
     </main>
   )
-}
-
-function getChar(text: string) {
-  try {
-    const json = JSON.parse(text)
-    return json.char ?? "Unknown character"
-  } catch (error) {
-    return "No file provided"
-  }
 }
 
 export const getServerSideProps: GetServerSideProps<Props> = async function (ctx) {

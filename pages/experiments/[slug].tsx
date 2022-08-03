@@ -11,6 +11,7 @@ import { Scatter } from "react-chartjs-2"
 import { AffiliationLabel } from "../../components/Affiliation"
 import { DiscordUser } from "../../components/DiscordAvatar"
 import FormattedLink from "../../components/FormattedLink"
+import { CheckboxInput, NumberInput, NumberInputList, SelectInput } from "../../components/Input"
 import { getExperimentList, prisma } from "../../utils/db"
 import { ExperimentData, GOODData, PartialAffiliation, SmallExperimentMeta } from "../../utils/types"
 import { copy, download, mergeTemplate } from "../../utils/utils"
@@ -32,7 +33,6 @@ interface ExperimentMeta {
   slug: string
   template: GOODData
   active: boolean
-  oneShot: boolean
   x?: string
   y?: string
   special: {
@@ -92,6 +92,7 @@ export default function Experiment({ location, meta, data, next, prev, affiliati
 
       <div className="text-sm breadcrumbs">
         <ul>
+          <li><Link href={"/"}>Home</Link></li>
           <li><Link href={"/experiments"}>Experiments</Link></li>
           <li>{meta.name}</li>
         </ul>
@@ -119,24 +120,40 @@ export default function Experiment({ location, meta, data, next, prev, affiliati
         <p>This template has been archived and will most likely no longer receive updates in the future.</p>
       </>}
 
-      {false && <>
-        <h3 className="text-2xl font-bold pt-1" id="archived">Note</h3>
-        <p>TODO: Add notes</p>
+      {meta.note && <>
+        <h3 className="text-2xl font-bold pt-1" id="notes">Note</h3>
+        <p>{meta.note}</p>
       </>}
 
       <h3 className="text-lg font-bold pt-1" id="template">Template</h3>
-      <p>The template with assumptions for this experiment can be found TODO: Template.</p>
+      <p>The template with assumptions for this experiment can be found here, which can be directly imported into <FormattedLink href="https://frzyc.github.io/genshin-optimizer/#/setting">
+        Genshin Optimizer&apos;s Settings page</FormattedLink>.</p>
+      <p><b>Note</b>: this might replace <b>all</b> your current characters and weapons in GO when imported, don&apos;t forget to use a different database!</p>
+      <div className="flex w-full justify-center">
+        <button className="btn m-2 btn-secondary w-64"
+          onClick={() => {
+            try {
+              copy(JSON.stringify(meta.template))
+              setToast("Copied!")
+            } catch (error) {
+              setToast(error + "")
+            }
+          }}
+        >
+          Copy template
+        </button>
+      </div>
 
       <h3 className="text-lg font-bold pt-1" id="results">Results</h3>
       <CheckboxInput label="Show lines" set={setShowLines} value={showLines} />
-      {undefined /* TODO */ && <CheckboxInput label="Show special data" set={setShowSpecialData} value={showSpecialData} />}
+      {meta.special.length > 0 && <CheckboxInput label="Show special data" set={setShowSpecialData} value={showSpecialData} />}
       <CheckboxInput label="Randomize colors" set={setRandomColors} value={randomColors} />
       <CheckboxInput label="Show percentiles" set={setShowPercentiles} value={showPercentiles} />
       {showPercentiles && <CheckboxInput label="Show both users and percentiles" set={setShowBoth} value={showBoth} />}
       {showPercentiles && <NumberInputList label="Shown percentiles" set={setPercentiles} value={percentiles} defaultValue={50} min={0} max={100} />}
       <SelectInput label="Focused user" set={setMarkedUser} value={markedUser.value} options={[
         UNSELECTED,
-        // ...(undefined /* TODO */ && showSpecialData ? (Object.keys(["TODO"]).length == 1 ? Object.keys(["TODO"]) : ["Specials"]) : []),
+        ...(showSpecialData ? meta.special.map(x => ({ label: x.name, value: x.name })) : []),
         ...(showPercentiles ? [{ label: "Percentiles", value: "Percentiles" }] : []),
         ...data.map(x => ({
           label: x.username + "#" + x.tag,
@@ -176,7 +193,7 @@ function UserGraph({ meta, data, showLines, randomColors, showSpecialData, marke
 
   datasets.push(...data.map(d => ({
     label: d.username,
-    data: meta.oneShot && d.ar > 0 ? [{ x: d.ar, y: Math.max(...d.stats.map(([_x, y]) => y)) }] : d.stats.map(([x, y]) => ({ x, y })),
+    data: !meta.x ? [{ x: d.ar, y: Math.max(...d.stats.map(([_x, y]) => y)) }] : d.stats.map(([x, y]) => ({ x, y })),
     showLine: showLines,
     ...getColor(d, affiliations, randomColors, markedUser)
   })).sort((a, b) => a.label.localeCompare(b.label)))
@@ -215,7 +232,7 @@ function UserGraph({ meta, data, showLines, randomColors, showSpecialData, marke
           title: {
             display: true,
             color: "rgb(160,160,160)",
-            text: meta.oneShot ? "Total Adventure XP" : meta.x
+            text: !meta.x ? "Total Adventure XP" : meta.x
           }
         }
       },
@@ -238,7 +255,7 @@ function Leaderboard({ data, meta, markedUser, affiliations, setToast }: { data:
   const [minimumX, setMinimumX] = useState(0)
 
   return <>
-    {!meta.oneShot && <NumberInput label={`Minimum ${meta.x}`} set={setMinimumX} value={minimumX} />}
+    {meta.x && <NumberInput label={`Minimum ${meta.x}`} set={setMinimumX} value={minimumX} />}
     <div className="clear-both"></div>
     <table className={`table table-zebra table-compact  table-auto w-full ${expanded || data.length <= 10 ? "" : "cursor-pointer"} my-2 sm:text-base text-sm`} onClick={(e) => setExpanded(true)}>
       <thead>
@@ -247,7 +264,7 @@ function Leaderboard({ data, meta, markedUser, affiliations, setToast }: { data:
           <th>Name</th>
           <th>Total Adventure XP</th>
           <th>Affiliation</th>
-          {!meta.oneShot && <th>{meta.x ?? "x"}</th>}
+          {meta.x && <th>{meta.x}</th>}
           <th>{meta.y ?? "y"}</th>
           <th>Merged GOOD</th>
         </tr>
@@ -256,7 +273,7 @@ function Leaderboard({ data, meta, markedUser, affiliations, setToast }: { data:
         {data
           .map(c => ({
             ...c,
-            bestStats: c.stats.find(x => meta.oneShot || x[0] >= minimumX)
+            bestStats: c.stats.find(x => !meta.x || x[0] >= minimumX)
           }))
           .sort((a, b) => {
             const statA = a?.bestStats?.[1]
@@ -273,7 +290,7 @@ function Leaderboard({ data, meta, markedUser, affiliations, setToast }: { data:
             <td><DiscordUser user={c} /></td>
             <td>{c.ar.toLocaleString()}</td>
             <td>{c.affiliations.map(a => affiliations[a]).map(a => <AffiliationLabel key={a.id} affiliation={a} />)}</td>
-            {!meta.oneShot && <td>{c.bestStats?.[0]?.toLocaleString() ?? "---"}</td>}
+            {meta.x && <td>{c.bestStats?.[0]?.toLocaleString() ?? "---"}</td>}
             <td>{c.bestStats?.[1]?.toLocaleString() ?? "---"}</td>
             <td><button
               className="btn btn-primary btn-sm"
@@ -291,95 +308,12 @@ function Leaderboard({ data, meta, markedUser, affiliations, setToast }: { data:
             </button></td>
           </tr>)}
         {!expanded && data.length > 10 && <tr className="pr-1 cursor-pointer text-blue-700 dark:text-blue-300 hover:text-blue-400 dark:hover:text-blue-400 no-underline transition-all duration-200 font-semibold">
-          <td colSpan={meta.oneShot ? 6 : 7} style={({ textAlign: "center" })}>Click to expand...</td>
+          <td colSpan={!meta.x ? 6 : 7} style={({ textAlign: "center" })}>Click to expand...</td>
         </tr>}
       </tbody>
     </table>
   </>
 }
-
-function CheckboxInput({ value, set, label }: { value: boolean, set: (newValue: boolean) => unknown, label: string }) {
-  return <div><label>
-    {label}
-    <input
-      className="checkbox checkbox-sm checkbox-accent ml-1"
-      checked={value}
-      onChange={(e) => set(e.target.checked)}
-      type="checkbox"
-    />
-  </label></div>
-}
-
-function SelectInput({ value, set, label, options }: { value: string, set: (newValue: { value: string; label: string; }) => unknown, options: { value: string, label: string }[], label: string }) {
-  return <div><label>
-    {label}
-    <select
-      value={value}
-      onChange={e => set(options.find(x => x.value == e.target.value)!)}
-      className="m-1 select select-bordered select-sm"
-    >
-      {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-    </select>
-  </label></div>
-}
-
-function NumberInput({ value, set, label, min, max }: { value: number, set: (newValue: number) => unknown, label: string, min?: number, max?: number }) {
-  return <div><label>
-    {label}
-    <input
-      className="input input-sm m-1"
-      value={value}
-      onChange={(e) => {
-        const value = +e.target.value
-        set(min && value < min ? min : max && value > max ? max : value)
-      }}
-      min={min}
-      max={max}
-      type="number"
-    />
-    <button className={`${value == min ? "bg-slate-800 text-slate-50" : "bg-red-500 text-slate-50 cursor-pointer"} text-center rounded-lg px-1 inline-block ml-2 md:sr-only`} tabIndex={-1} onClick={() => (min == undefined || value > min) ? set(value - 1) : void 0}>Subtract 1</button>
-    <button className={`${value == max ? "bg-slate-800 text-slate-50" : "bg-green-500 text-slate-50 cursor-pointer"} text-center rounded-lg px-1 inline-block ml-2 md:sr-only`} tabIndex={-1} onClick={() => (max == undefined || value < max) ? set(value + 1) : void 0}>Add 1</button>
-
-  </label></div>
-}
-
-function NumberInputList({ value, set, label, defaultValue, min, max }: { value: number[], set: (newValue: number[]) => unknown, label: string, defaultValue: number, min?: number, max?: number }) {
-  const [target, setTarget] = useState(defaultValue)
-
-  function add(v: number) {
-    const newValue = [...value, v].sort((a, b) => a - b).filter((v, i, a) => a.indexOf(v) == i)
-    set(newValue)
-  }
-  function remove(v: number) {
-    set(value.filter(v2 => v != v2))
-  }
-
-  return <div><label>
-    {label}
-    <input
-      className="input input-sm input-bordered m-1"
-      min={min}
-      max={max}
-      value={target}
-      onChange={(e) => {
-        const value = +e.target.value
-        setTarget(min && value < min ? min : max && value > max ? max : value)
-      }}
-      onKeyDown={e => {
-        if (e.key == "Enter") {
-          e.preventDefault()
-          add(parseInt(e.currentTarget.value))
-        }
-      }}
-      type="number"
-    />
-    <button className={"btn btn-success btn-sm normal-case m-1"} tabIndex={-1} onClick={() => add(target)}>Add {target}</button>
-    {value.map(v => <button key={v} className={"btn btn-error btn-sm normal-case m-1"} tabIndex={-1} onClick={() => remove(v)}>Remove {v}</button>)}
-
-
-  </label></div>
-}
-
 
 function getPercentiles(data: ExperimentData[], meta: ExperimentMeta, percents: number[]): ExperimentData[] {
   const percentiles: {
@@ -389,11 +323,11 @@ function getPercentiles(data: ExperimentData[], meta: ExperimentMeta, percents: 
 
   let xValues = data.flatMap(x => x.stats.map(x => x[0])).filter((v, i, a) => a.indexOf(v) == i).sort((a, b) => a - b)
 
-  if (meta.oneShot)
+  if (!meta.x)
     xValues = [Math.min(...data.map(x => x.ar)), Math.max(...data.map(x => x.ar))]
 
   xValues.forEach(x => {
-    const values = data.map(u => u.stats.find(s => s[0] >= x || meta.oneShot)).sort((a, b) => (b?.[1] ?? 0) - (a?.[1] ?? 0))
+    const values = data.map(u => u.stats.find(s => s[0] >= x || !meta.x)).sort((a, b) => (b?.[1] ?? 0) - (a?.[1] ?? 0))
 
     percentiles.forEach(p => {
       const value = values[Math.floor(values.length * p.percentile / 100)]
@@ -498,14 +432,16 @@ export async function getStaticProps(context: GetStaticPropsContext): Promise<Ge
         experimentData: {
           include: {
             user: {
-              select: { avatar: true, username: true, tag: true, GOODId: true, affiliations: {
-                select: {
-                  id: true,
-                  name: true,
-                  color: true,
-                  description: true,
-                }
-              }, ar: true }
+              select: {
+                avatar: true, username: true, tag: true, GOODId: true, affiliations: {
+                  select: {
+                    id: true,
+                    name: true,
+                    color: true,
+                    description: true,
+                  }
+                }, ar: true
+              }
             }
           }
         }
@@ -539,15 +475,14 @@ export async function getStaticProps(context: GetStaticPropsContext): Promise<Ge
           name: data.name,
           slug: data.slug,
           active: data.active,
-          note: "TODO: Note",
-          oneShot: false, // TODO
+          note: data.note,
           special: data.staticDataline.map(d => ({
             name: d.name,
             dataLine: d.dataLine as [number, number][],
           })),
           template: data.template as any as GOODData,
-          x: "TODO X",
-          y: "TODO Y",
+          x: data.x,
+          y: data.y,
         },
         data: experimentData,
         affiliations

@@ -1,6 +1,7 @@
 import { User } from "@prisma/client"
 import { GetServerSideProps } from "next"
 import Head from "next/head"
+import Link from "next/link"
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
 import { LoginInfo } from "../../components/LoginInfo"
@@ -36,6 +37,7 @@ export default function AdminPage({ user }: Props) {
 
       <div className="text-sm breadcrumbs">
         <ul>
+          <li><Link href={"/"}>Home</Link></li>
           <li>Admin stuff</li>
         </ul>
       </div>

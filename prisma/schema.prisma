@@ -52,7 +52,7 @@ model Affiliation {
   guild       Guild?  @relation(fields: [serverId], references: [id])
   serverId    String?
 
-  users   User[]
+  users User[]
 }
 
 model Authentication {
@@ -89,6 +89,9 @@ model Experiment {
   creatorId String
   character String
   template  Json
+  x         String   @default("")
+  y         String   @default("Unknown")
+  note      String   @default("")
   active    Boolean  @default(false)
   public    Boolean  @default(false)
 

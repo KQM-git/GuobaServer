@@ -30,6 +30,7 @@ export default function UsersPage({ user, users }: Props) {
 
       <div className="text-sm breadcrumbs">
         <ul>
+          <li><Link href={"/"}>Home</Link></li>
           <li><Link href={"/admin"}>Admin stuff</Link></li>
           <li>User management</li>
         </ul>
