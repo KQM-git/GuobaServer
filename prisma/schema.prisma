@@ -109,6 +109,7 @@ model StaticDataline {
   experimentId Int
   name         String
   dataLine     Json
+  color        String?
 }
 
 model ExperimentData {

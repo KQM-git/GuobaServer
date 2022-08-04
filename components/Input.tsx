@@ -118,3 +118,15 @@ export function TextInput({
     />
   </label>
 }
+
+export function ColorInput({ color, setColor } : { color: string, setColor: (value: string) => void }) {
+  return <label className="cursor-pointer label justify-start" >
+    <span className="font-semibold">Color</span>
+    <input
+      type="color"
+      className={"input input-bordered input-sm mx-3"}
+      value={color}
+      onChange={e => setColor(e.target.value)}
+    />
+  </label>
+}

@@ -35,10 +35,13 @@ interface ExperimentMeta {
   active: boolean
   x?: string
   y?: string
-  special: {
-    name: string;
-    dataLine: [number, number][];
-  }[]
+  special: SpecialData[]
+}
+interface SpecialData {
+  id: number
+  name: string
+  stats: [number, number][]
+  color: string | null
 }
 
 interface Props {
@@ -52,7 +55,7 @@ interface Props {
 const UNSELECTED = {
   label: "Select...",
   value: "UNSELECTED"
-}
+} as { value: string | number; label: string | number; }
 export default function Experiment({ location, meta, data, next, prev, affiliations }: Props & { location: string }) {
   const desc = `Visualization for the ${meta.name} experiment for the GUOBA project. The GUOBA Project intends to map out how the artifacts of players perform to improve mathematical models/artifact standards for calculations such as the KQMS.`
 
@@ -151,9 +154,9 @@ export default function Experiment({ location, meta, data, next, prev, affiliati
       <CheckboxInput label="Show percentiles" set={setShowPercentiles} value={showPercentiles} />
       {showPercentiles && <CheckboxInput label="Show both users and percentiles" set={setShowBoth} value={showBoth} />}
       {showPercentiles && <NumberInputList label="Shown percentiles" set={setPercentiles} value={percentiles} defaultValue={50} min={0} max={100} />}
-      <SelectInput label="Focused user" set={setMarkedUser} value={markedUser.value} options={[
+      <SelectInput<string | number> label="Focused user" set={setMarkedUser} value={markedUser.value} options={[
         UNSELECTED,
-        ...(showSpecialData ? meta.special.map(x => ({ label: x.name, value: x.name })) : []),
+        ...(showSpecialData ? meta.special.map(x => ({ label: x.name, value: x.id })) : []),
         ...(showPercentiles ? [{ label: "Percentiles", value: "Percentiles" }] : []),
         ...data.map(x => ({
           label: x.username + "#" + x.tag,
@@ -165,7 +168,7 @@ export default function Experiment({ location, meta, data, next, prev, affiliati
         download(`${meta.slug}.csv`, "user,affiliation,ar,x,y\n" +
           data.flatMap(u => u.stats.map(d => `${u.username.replace(/,/g, "")}#${u.tag},${u.affiliations.join("/").replace(/,/g, "")},${u.ar},${d.join(",")}`)).join("\n"))
       }}>Export to .csv</button>
-      <Leaderboard data={data} markedUser={markedUser.value} meta={meta} affiliations={affiliations} setToast={setToast} />
+      <Leaderboard data={data} special={meta.special} markedUser={markedUser.value} meta={meta} affiliations={affiliations} setToast={setToast} />
 
       <h3 className="text-lg font-bold pt-1" id="disclaimer">Disclaimer</h3>
       <p>This data is gathered from the GUOBA project. Please refer to the <FormattedLink href="/">homepage</FormattedLink> to submit your own data!
@@ -183,12 +186,12 @@ export default function Experiment({ location, meta, data, next, prev, affiliati
   )
 }
 
-function UserGraph({ meta, data, showLines, randomColors, showSpecialData, markedUser, affiliations }: { meta: ExperimentMeta, data: ExperimentData[], showLines: boolean, randomColors: boolean, showSpecialData: boolean, markedUser: string, affiliations: Record<number, PartialAffiliation> }) {
-  const datasets = (meta.special && showSpecialData) ? Object.entries(meta.special).map(([label, data]) => ({
-    label,
-    ...getColor({ id: label, stats: [] } as any, affiliations, randomColors, markedUser),
+function UserGraph({ meta, data, showLines, randomColors, showSpecialData, markedUser, affiliations }: { meta: ExperimentMeta, data: ExperimentData[], showLines: boolean, randomColors: boolean, showSpecialData: boolean, markedUser: string | number, affiliations: Record<number, PartialAffiliation> }) {
+  const datasets = (meta.special && showSpecialData) ? meta.special.map(({ stats, id, name, color }) => ({
+    label: name,
+    ...getColor({ id, affiliations: [-98], ar: -1, color }, affiliations, randomColors, markedUser),
     showLine: true,
-    data: data.dataLine.map(([x, y]) => ({ x, y }))
+    data: stats.map(([x, y]) => ({ x, y }))
   })) : []
 
   datasets.push(...data.map(d => ({
@@ -250,9 +253,23 @@ function UserGraph({ meta, data, showLines, randomColors, showSpecialData, marke
   </div>
 }
 
-function Leaderboard({ data, meta, markedUser, affiliations, setToast }: { data: ExperimentData[], meta: ExperimentMeta, markedUser: string, affiliations: Record<number, PartialAffiliation>, setToast: (msg: string) => void }) {
+function isSpecial(point: unknown): point is SpecialData {
+  return typeof (point as SpecialData).id == "number"
+}
+
+function Leaderboard({
+  data, meta, markedUser, affiliations, setToast, special
+}: {
+  data: ExperimentData[],
+  meta: ExperimentMeta,
+  markedUser: string | number,
+  affiliations: Record<number, PartialAffiliation>,
+  setToast: (msg: string) => void,
+  special: SpecialData[]
+}) {
   const [expanded, setExpanded] = useState(false)
   const [minimumX, setMinimumX] = useState(0)
+  let i = 0
 
   return <>
     {meta.x && <NumberInput label={`Minimum ${meta.x}`} set={setMinimumX} value={minimumX} />}
@@ -270,7 +287,7 @@ function Leaderboard({ data, meta, markedUser, affiliations, setToast }: { data:
         </tr>
       </thead>
       <tbody>
-        {data
+        {[...data, ...special]
           .map(c => ({
             ...c,
             bestStats: c.stats.find(x => !meta.x || x[0] >= minimumX)
@@ -285,14 +302,16 @@ function Leaderboard({ data, meta, markedUser, affiliations, setToast }: { data:
             return statB - statA
           })
           .filter((_, i, arr) => expanded ? true : (i < 10))
-          .map((c, i) => <tr className={`${markedUser == c.id ? "font-bold" : ""}`} key={i}>
-            <td>{`#${i + 1}`}</td>
-            <td><DiscordUser user={c} /></td>
-            <td>{c.ar.toLocaleString()}</td>
-            <td>{c.affiliations.map(a => affiliations[a]).map(a => <AffiliationLabel key={a.id} affiliation={a} />)}</td>
+          .map((c, index) => {
+
+          return <tr className={`${markedUser == c.id ? "font-bold" : ""}`} key={index}>
+            <td>{isSpecial(c) ? "" : `#${++i}`}</td>
+            <td>{isSpecial(c) ? c.name : <DiscordUser user={c} />}</td>
+            <td>{isSpecial(c) ? "" : c.ar.toLocaleString()}</td>
+            <td>{isSpecial(c) ? "" : c.affiliations?.map(a => affiliations[a]).map(a => <AffiliationLabel key={a.id} affiliation={a} />)}</td>
             {meta.x && <td>{c.bestStats?.[0]?.toLocaleString() ?? "---"}</td>}
             <td>{c.bestStats?.[1]?.toLocaleString() ?? "---"}</td>
-            <td><button
+            <td>{!isSpecial(c) && <button
               className="btn btn-primary btn-sm"
               onClick={async () => {
                 try {
@@ -305,8 +324,9 @@ function Leaderboard({ data, meta, markedUser, affiliations, setToast }: { data:
               }}
             >
               Copy
-            </button></td>
-          </tr>)}
+            </button>}</td>
+          </tr>
+        })}
         {!expanded && data.length > 10 && <tr className="pr-1 cursor-pointer text-blue-700 dark:text-blue-300 hover:text-blue-400 dark:hover:text-blue-400 no-underline transition-all duration-200 font-semibold">
           <td colSpan={!meta.x ? 6 : 7} style={({ textAlign: "center" })}>Click to expand...</td>
         </tr>}
@@ -351,14 +371,12 @@ function getPercentiles(data: ExperimentData[], meta: ExperimentMeta, percents: 
 }
 
 
-function getColor(data: ExperimentData, affiliations: Record<number, PartialAffiliation>, randomColors: boolean, markedUser: string) {
-  if (data.id == "KQMS") return {
-    borderColor: "#9b4fd1",
-    backgroundColor: "#d9b8ef",
-    borderWidth: data.id == markedUser ? 4 : undefined,
-    segment: { borderColor: "#9b4fd1" }
-  }
-
+function getColor(data: {
+  id: string | number
+  affiliations: number[]
+  color?: string | null
+  ar: number
+}, affiliations: Record<number, PartialAffiliation>, randomColors: boolean, markedUser: string | number) {
   let base = Color({ r: 201, g: 201, b: 201 }) // gray
   if (data.affiliations.length > 0)
     base = Color(affiliations[data.affiliations[0]]?.color)
@@ -366,7 +384,7 @@ function getColor(data: ExperimentData, affiliations: Record<number, PartialAffi
   let mult = .2
 
   if (markedUser == UNSELECTED.value) {
-    if (data.ar < 0 && data.affiliations[0] == -99)
+    if (data.ar < 0 && data.affiliations?.[0] < 0)
       mult = 1.3
     else
       mult = 0.5
@@ -376,13 +394,17 @@ function getColor(data: ExperimentData, affiliations: Record<number, PartialAffi
   if (data.ar < 0) {
     base = Color({ r: 177, g: 255, b: 99 }) // specials
     if (data.affiliations[0] == -99) {
-      base = Color({ r: 99, g: 255, b: 255 }).darken(parseInt(data.id.replace("%", "")) / 150)
+      base = Color({ r: 99, g: 255, b: 255 }).darken(parseInt(data.id.toString().replace("%", "")) / 150)
       randomColors = false
       if (markedUser == "Percentiles")
         mult = 2
     } else if (markedUser == "Specials")
       mult = 2
   }
+
+  console.log(data)
+  if (data.color)
+    base = Color(data.color)
 
   const a = randomColors ? (Math.random() - 0.5) * 0.6 : 0
   const b = randomColors ? (Math.random() - 0.5) * 0.4 : 0
@@ -425,8 +447,10 @@ export async function getStaticProps(context: GetStaticPropsContext): Promise<Ge
       include: {
         staticDataline: {
           select: {
+            id: true,
+            name: true,
+            color: true,
             dataLine: true,
-            name: true
           }
         },
         experimentData: {
@@ -477,8 +501,10 @@ export async function getStaticProps(context: GetStaticPropsContext): Promise<Ge
           active: data.active,
           note: data.note,
           special: data.staticDataline.map(d => ({
+            id: d.id,
+            color: d.color,
             name: d.name,
-            dataLine: d.dataLine as [number, number][],
+            stats: d.dataLine as [number, number][],
           })),
           template: data.template as any as GOODData,
           x: data.x,

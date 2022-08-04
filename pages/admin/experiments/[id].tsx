@@ -4,7 +4,7 @@ import Head from "next/head"
 import Link from "next/link"
 import { NextRouter, useRouter } from "next/router"
 import { Dispatch, SetStateAction, useEffect, useState } from "react"
-import { CheckboxInput, TextInput } from "../../../components/Input"
+import { CheckboxInput, ColorInput, TextInput } from "../../../components/Input"
 import { LoginInfo } from "../../../components/LoginInfo"
 import { getExperiment, getUserFromCtx, isUser } from "../../../utils/db"
 import { ExperimentInfoWithLines } from "../../../utils/types"
@@ -129,17 +129,21 @@ export default function ExperimentsPage({ user, experiment }: Props) {
 function StaticLineUpdater({ staticDataline, setToast, router, experimentId }: { staticDataline?: StaticDataline, setToast: Dispatch<SetStateAction<string>>, router: NextRouter, experimentId: number }) {
   const [name, setName] = useState(staticDataline?.name ?? "")
   const [data, setData] = useState(staticDataline?.dataLine ? JSON.stringify(staticDataline.dataLine) : "")
+  const [color, setColor] = useState(staticDataline?.color ?? "#CB71F1")
 
   return <div>
     <h3 className="text-lg font-semibold">{staticDataline ? `Dateline #${staticDataline.id}` : "New dataline"}</h3>
     <TextInput label="Name" value={name} set={setName} />
     <TextInput label="Raw data" value={data} set={setData} validation={isValidDataline} />
+    <ColorInput color={color} setColor={setColor} />
+
     <button
       className={"btn btn-primary my-2"}
       onClick={async () => {
         await doFetch("/api/update-dataline", JSON.stringify({
           id: staticDataline?.id,
           experimentId,
+          color,
           name,
           data
         }), setToast, router)
@@ -149,7 +153,6 @@ function StaticLineUpdater({ staticDataline, setToast, router, experimentId }: {
     </button>
 
     {staticDataline && <>
-
       <button
         className={"btn btn-error m-2 float-right"}
         onClick={async () => {

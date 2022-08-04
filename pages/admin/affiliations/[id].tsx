@@ -7,7 +7,7 @@ import { useEffect, useState } from "react"
 import { AffiliationLabel } from "../../../components/Affiliation"
 import { DiscordUser } from "../../../components/DiscordAvatar"
 import FormattedLink from "../../../components/FormattedLink"
-import { TextInput } from "../../../components/Input"
+import { ColorInput, TextInput } from "../../../components/Input"
 import { LoginInfo } from "../../../components/LoginInfo"
 import { getUser, getUserFromCtx, isUser, prisma } from "../../../utils/db"
 import { DetailedUserInfo, GOODData } from "../../../utils/types"
@@ -64,17 +64,9 @@ export default function UserPage({ user, affiliation }: Props) {
 
       <TextInput label="Description" set={setDescription} value={description} />
 
-      <label className="cursor-pointer label justify-start" >
-        <span className="font-semibold">Color</span>
-        <input
-          type="color"
-          className={"input input-bordered input-sm mx-3"}
-          value={color}
-          onChange={e => setColor(e.target.value)}
-        />
-      </label>
+      <ColorInput color={color} setColor={setColor} />
 
-      <TextInput label="Server ID" set={setServer} value={server} validation={(value) => !!(value.match(/^\d{17,21}$/) || value.length == 0)}/>
+      <TextInput label="Server ID" set={setServer} value={server} validation={(value) => !!(value.match(/^\d{17,21}$/) || value.length == 0)} />
 
       <div>
         Preview: <AffiliationLabel affiliation={{ color, description, id: 0, name }} />

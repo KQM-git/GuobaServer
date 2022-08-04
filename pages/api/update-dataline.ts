@@ -10,7 +10,7 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
     if (!user.admin) return res.send({ error: "No permission!" })
 
     try {
-        const { id, experimentId, name, data } = JSON.parse(req.body)
+        const { id, experimentId, name, data, color } = JSON.parse(req.body)
 
         if (id && data === null) {
             console.log(`Deleting dataline ${name} (${id} / ${experimentId}) for ${user.id}`)
@@ -20,6 +20,7 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
 
         if (!name) return res.send({ error: "Invalid name!" })
         if (typeof data !== "string" || !isValidDataline(data)) return res.send({ error: "Invalid data!" })
+        if (typeof color !== "string") return res.send({ error: "Invalid data!" })
 
         console.log(`Updating dataline ${name} (${id} / ${experimentId}) for ${user.id}`)
 
@@ -30,11 +31,13 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
                 },
                 create: {
                     name,
+                    color,
                     dataLine: JSON.parse(data),
                     experiment: { connect: { id: experimentId } }
                 },
                 update: {
                     name,
+                    color,
                     dataLine: JSON.parse(data)
                 }
             })
@@ -42,7 +45,8 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
             data: {
                 name,
                 dataLine: JSON.parse(data),
-                experiment: { connect: { id: experimentId } }
+                experiment: { connect: { id: experimentId } },
+                color
             }
         })
 
