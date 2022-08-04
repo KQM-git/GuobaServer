@@ -402,7 +402,6 @@ function getColor(data: {
       mult = 2
   }
 
-  console.log(data)
   if (data.color)
     base = Color(data.color)
 

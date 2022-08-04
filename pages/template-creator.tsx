@@ -203,8 +203,6 @@ function createTemplate(good: GOODData, char: string): string | { char: string, 
   if (!weapon)
     return `Could not find weapon of ${char}`
 
-  console.log(`Found weapon: ${weapon}`)
-
   template.characters.forEach(x => {
     // Clean up other custom targets
     const target = template.buildSettings?.[0]?.optimizationTarget
