@@ -1,9 +1,9 @@
-import { PrismaClient, User } from "@prisma/client"
+import { PrismaClient, StaticDataline, User } from "@prisma/client"
 import { parse, serialize } from "cookie"
 import { GetServerSidePropsContext, GetServerSidePropsResult, PreviewData } from "next"
 import { ParsedUrlQuery } from "querystring"
 import { config } from "./config"
-import { DiscordGuild, DiscordUser, ExperimentInfo, GOODData } from "./types"
+import { DiscordGuild, DiscordUser, ExperimentInfo, ExperimentInfoWithLines, GOODData } from "./types"
 export const prisma = new PrismaClient()
 
 export async function getExperimentList() {
@@ -288,12 +288,13 @@ export async function getExperiments(): Promise<ExperimentInfo[]> {
     })
 }
 
-export async function getExperiment(id: number): Promise<ExperimentInfo | null> {
+export async function getExperiment(id: number): Promise<ExperimentInfoWithLines | null> {
     return await prisma.experiment.findUnique({
         where: { id },
         include: {
             creator: true,
-            _count: { select: { experimentData: true } }
+            _count: { select: { experimentData: true } },
+            staticDataline: true
         }
     })
 }

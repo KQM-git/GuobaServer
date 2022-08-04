@@ -1,4 +1,4 @@
-import { Computer, ComputerLogs, Experiment, User } from "@prisma/client"
+import { Computer, ComputerLogs, Experiment, StaticDataline, User } from "@prisma/client"
 
 export interface DiscordUser {
     id: string
@@ -87,6 +87,8 @@ export type ExperimentInfo = Experiment & {
         experimentData: number
     }
 }
+
+export type ExperimentInfoWithLines = ExperimentInfo & { staticDataline: StaticDataline[] }
 
 export type UserInfo = User & {
     _count: {

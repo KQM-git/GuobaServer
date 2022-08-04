@@ -1,18 +1,18 @@
-import { User } from "@prisma/client"
+import { StaticDataline, User } from "@prisma/client"
 import { GetServerSideProps } from "next"
 import Head from "next/head"
 import Link from "next/link"
-import { useRouter } from "next/router"
-import { useEffect, useState } from "react"
+import { NextRouter, useRouter } from "next/router"
+import { Dispatch, SetStateAction, useEffect, useState } from "react"
 import { CheckboxInput, TextInput } from "../../../components/Input"
 import { LoginInfo } from "../../../components/LoginInfo"
 import { getExperiment, getUserFromCtx, isUser } from "../../../utils/db"
-import { ExperimentInfo } from "../../../utils/types"
-import { doFetch, urlify } from "../../../utils/utils"
+import { ExperimentInfoWithLines } from "../../../utils/types"
+import { doFetch, isValidDataline, urlify } from "../../../utils/utils"
 
 interface Props {
   user: User,
-  experiment: ExperimentInfo
+  experiment: ExperimentInfoWithLines
 }
 
 export default function ExperimentsPage({ user, experiment }: Props) {
@@ -79,14 +79,14 @@ export default function ExperimentsPage({ user, experiment }: Props) {
         />
       </label>
 
-      <TextInput label="Name" value={name} set={setName}/>
+      <TextInput label="Name" value={name} set={setName} />
 
-      <TextInput label="Slug (.../experiments/[slug])" placeholder={urlify(name, true)} value={slug} set={setSlug}/>
+      <TextInput label="Slug (.../experiments/[slug])" placeholder={urlify(name, true)} value={slug} set={setSlug} />
 
-      <TextInput label="X-axis (leave empty for one-shots)" value={x} set={setX} validation={() => true}/>
+      <TextInput label="X-axis (leave empty for one-shots)" value={x} set={setX} validation={() => true} />
       <TextInput label="Y-axis" value={y} set={setY} />
 
-      <TextInput label="Notes" value={notes} set={setNotes} validation={() => true}/>
+      <TextInput label="Notes" value={notes} set={setNotes} validation={() => true} />
 
       <CheckboxInput label="List on homepage" labelClass="font-semibold" set={setPublicExp} value={publicExp} />
 
@@ -108,6 +108,12 @@ export default function ExperimentsPage({ user, experiment }: Props) {
         Update experiment
       </button>
 
+      <div className="divider" />
+
+      {experiment.staticDataline.map(line => <StaticLineUpdater key={line.id} staticDataline={line} router={router} setToast={setToast} experimentId={experiment.id} />)}
+
+      <StaticLineUpdater router={router} setToast={setToast} experimentId={experiment.id} />
+
       {toast.length > 0 &&
         <div className="toast">
           <div className="alert alert-error">
@@ -118,6 +124,46 @@ export default function ExperimentsPage({ user, experiment }: Props) {
         </div>}
     </main>
   )
+}
+
+function StaticLineUpdater({ staticDataline, setToast, router, experimentId }: { staticDataline?: StaticDataline, setToast: Dispatch<SetStateAction<string>>, router: NextRouter, experimentId: number }) {
+  const [name, setName] = useState(staticDataline?.name ?? "")
+  const [data, setData] = useState(staticDataline?.dataLine ? JSON.stringify(staticDataline.dataLine) : "")
+
+  return <div>
+    <h3 className="text-lg font-semibold">{staticDataline ? `Dateline #${staticDataline.id}` : "New dataline"}</h3>
+    <TextInput label="Name" value={name} set={setName} />
+    <TextInput label="Raw data" value={data} set={setData} validation={isValidDataline} />
+    <button
+      className={"btn btn-primary my-2"}
+      onClick={async () => {
+        await doFetch("/api/update-dataline", JSON.stringify({
+          id: staticDataline?.id,
+          experimentId,
+          name,
+          data
+        }), setToast, router)
+      }}
+    >
+      {staticDataline ? "Update " : "Create "}dataline
+    </button>
+
+    {staticDataline && <>
+
+      <button
+        className={"btn btn-error m-2 float-right"}
+        onClick={async () => {
+          await doFetch("/api/update-dataline", JSON.stringify({
+            id: staticDataline?.id,
+            data: null
+          }), setToast, router)
+        }}
+      >
+        Delete dataline
+      </button>
+      <div className="divider" />
+    </>}
+  </div>
 }
 
 export const getServerSideProps: GetServerSideProps<Props> = async function (ctx) {

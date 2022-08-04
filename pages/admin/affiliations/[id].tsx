@@ -74,7 +74,7 @@ export default function UserPage({ user, affiliation }: Props) {
         />
       </label>
 
-      <TextInput label="Server ID" set={setServer} value={server} validation={(value) => !(value.match(/^\d{17,21}$/) || value.length == 0)}/>
+      <TextInput label="Server ID" set={setServer} value={server} validation={(value) => !!(value.match(/^\d{17,21}$/) || value.length == 0)}/>
 
       <div>
         Preview: <AffiliationLabel affiliation={{ color, description, id: 0, name }} />

@@ -107,7 +107,7 @@ export function TextInput({
   placeholder?: string
   validation?: (newValue: string) => boolean
 }) {
-  return <label className={`cursor-pointer label justify-start ${(validation ? validation(value) : value.length == 0) ? "text-error" : ""}`} >
+  return <label className={`cursor-pointer label justify-start ${(validation ? validation(value) : value.length > 0) ? "" : "text-error"}`} >
     <span className={labelClass}>{label}</span>
     <input
       type="text"

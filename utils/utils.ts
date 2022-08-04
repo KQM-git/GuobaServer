@@ -15,6 +15,19 @@ export function clean(input: string) {
     return input.replace(/ ?\$\{.*?\}/g, "").replace(/ ?\(.*?\)/g, "").replace(/[*[\]]/g, "").split("\n")[0]
 }
 
+export function isValidDataline(value: string) {
+    try {
+        const parsed = JSON.parse(value)
+        if (!Array.isArray(parsed))
+            return false
+        if (parsed.some(x => !Array.isArray(x) || x.length != 2 || !x.every(v => typeof v == "number")))
+            return false
+        return true
+    } catch (error) {
+        return false
+    }
+}
+
 const end = new Date("2022-09-01").getTime()
 export function isGUOBAActive() {
     return Date.now() < end
