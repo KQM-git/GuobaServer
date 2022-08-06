@@ -1,5 +1,6 @@
 import { NextRouter } from "next/router"
-import { GOODData } from "./types"
+import { artifactInfo, slotInfo } from "./data"
+import { GOODData, IArtifact, SubStatKey } from "./types"
 
 export function urlify(input: string, shouldRemoveBrackets: boolean): string {
     if (shouldRemoveBrackets)
@@ -33,15 +34,7 @@ export function isGUOBAActive() {
     return Date.now() < end
 }
 
-export const artifactKeys = [
-    "Adventurer", "ArchaicPetra", "Berserker", "BlizzardStrayer", "BloodstainedChivalry", "BraveHeart",
-    "CrimsonWitchOfFlames", "DefendersWill", "EchoesOfAnOffering", "EmblemOfSeveredFate", "Gambler",
-    "GladiatorsFinale", "HeartOfDepth", "HuskOfOpulentDreams", "Instructor", "Lavawalker", "LuckyDog",
-    "MaidenBeloved", "MartialArtist", "NoblesseOblige", "OceanHuedClam", "PaleFlame", "ResolutionOfSojourner",
-    "RetracingBolide", "Scholar", "ShimenawasReminiscence", "TenacityOfTheMillelith", "TheExile",
-    "ThunderingFury", "Thundersoother", "TinyMiracle", "TravelingDoctor", "VermillionHereafter",
-    "ViridescentVenerer", "WanderersTroupe"
-]
+export const artifactKeys = artifactInfo.map(x => x.artifactKey)
 
 export const charKeys = [
     "Albedo", "Aloy", "Amber", "AratakiItto", "Barbara", "Beidou", "Bennett", "Chongyun", "Diluc", "Diona",
@@ -76,12 +69,95 @@ export const weaponKeys = [
     "WhiteIronGreatsword", "WhiteTassel", "Whiteblind", "WindblumeOde", "WineAndSong", "WolfsGravestone"
 ]
 
-export const slotKeys = ["flower", "plume", "sands", "goblet", "circlet"]
+export const slotKeys = slotInfo.map(x => x.slotKey)
 
-export const statKeys = [
-    "hp", "hp_", "atk", "atk_", "def", "def_", "eleMas", "enerRech_", "heal_", "critRate_", "critDMG_",
-    "physical_dmg_", "anemo_dmg_", "geo_dmg_", "electro_dmg_", "hydro_dmg_", "pyro_dmg_", "cryo_dmg_"
+export const mainStatKeys = [
+    "hp", "atk", "hp_", "atk_", "def_", "eleMas", "enerRech_", "heal_", "critRate_", "critDMG_",
+    "physical_dmg_", "anemo_dmg_", "geo_dmg_", "electro_dmg_", "hydro_dmg_", "pyro_dmg_", "cryo_dmg_", "dendro_dmg_"
 ]
+
+export const substats: Record<SubStatKey, number> = {
+    "hp": 298.75,
+    "hp_": 5.83,
+    "atk": 19.45,
+    "atk_": 5.83,
+    "def": 23.15,
+    "def_": 6.56,
+    "enerRech_": 6.48,
+    "eleMas": 23.31,
+    "critRate_": 3.89,
+    "critDMG_": 7.77,
+}
+
+export function pickArtifacts(userGood: GOODData) {
+    const value = userGood.artifacts.sort((a, b) => getRVValue(b) - getRVValue(a)).slice(0, 100)
+    const sum = userGood.artifacts.sort((a, b) => getRVSum(b) - getRVSum(a)).slice(0, 1)
+    const max = userGood.artifacts.sort((a, b) => getRVMax(b) - getRVMax(a)).slice(0, 1)
+
+    const final: IArtifact[] = [
+        ...value.slice(0, 6),
+        ...sum,
+        ...max,
+        ...value,
+    ].filter((v, i, arr) => arr.indexOf(v) == i)
+     .filter((v, i, arr) => arr.filter((a, j) => j < i && a.slotKey == v.slotKey).length < 3)
+     .slice(0, 12)
+     .sort((a, b) => slotKeys.indexOf(a.slotKey) - slotKeys.indexOf(b.slotKey) || getRVValue(b) - getRVValue(a))
+
+    return final
+}
+
+const value: Record<SubStatKey, number> = {
+    "hp":   1,
+    "hp_":  1.5,
+    "atk":  1,
+    "atk_": 1.5,
+    "def":  1,
+    "def_": 1.5,
+    "enerRech_": 3,
+    "eleMas": 3,
+    "critRate_": 4,
+    "critDMG_": 4,
+}
+
+const multi: Record<string, number|undefined> = {
+    "hp": 0.9,
+    "atk": 0.9,
+
+    "hp_": 0.95,
+    "atk_": 0.95,
+    "def_": 0.95,
+
+    "physical_dmg_": 1.15,
+    "anemo_dmg_": 1.15,
+    "geo_dmg_": 1.15,
+    "electro_dmg_": 1.15,
+    "hydro_dmg_": 1.15,
+    "pyro_dmg_": 1.15,
+    "cryo_dmg_": 1.15,
+
+    "critRate_": 1.2,
+    "critDMG_": 1.2,
+
+    "dendro_dmg_": 1.3,
+}
+
+export function getRVValue(artifact: IArtifact) {
+    const mult = multi[artifact.mainStatKey] ?? 1
+    return getSubs(artifact).reduce((p, c) => p + (c.value / substats[c.key] * value[c.key]), 0) * mult
+}
+
+export function getRVSum(artifact: IArtifact) {
+    return getSubs(artifact).reduce((p, c) => p + (c.value / substats[c.key]), 0)
+}
+
+export function getRVMax(artifact: IArtifact) {
+    return Math.max(...getSubs(artifact).map(c =>c.value / substats[c.key]))
+}
+
+export function getSubs(artifact: IArtifact) {
+    return artifact.substats.filter(x => x.key !== null && x.key.length > 0)
+}
 
 export function mergeTemplate(userGood: GOODData, template: GOODData) {
     const good = Object.assign({}, template, { artifacts: userGood.artifacts })
@@ -152,7 +228,7 @@ export function validateGOOD(input: unknown) {
             throw { goodError: `Invalid artifact rarity ${artifact.rarity}` }
 
 
-        if (typeof artifact.mainStatKey !== "string" || !statKeys.includes(artifact.mainStatKey))
+        if (typeof artifact.mainStatKey !== "string" || !mainStatKeys.includes(artifact.mainStatKey))
             throw { goodError: `Unknown artifact stat ${artifact.mainStatKey}` }
         // TODO Check slotKey specific mainstats
 
@@ -161,7 +237,7 @@ export function validateGOOD(input: unknown) {
         for (const substat of artifact.substats) {
             if (typeof substat !== "object")
                 throw { goodError: `Unknown artifact substat ${JSON.stringify(substat)}` }
-            if (typeof substat.key !== "string" || !["", ...statKeys].includes(substat.key))
+            if (typeof substat.key !== "string" || !Object.keys(substats).includes(substat.key))
                 throw { goodError: `Unknown artifact substat type ${JSON.stringify(substat.key)}` }
 
             if (typeof substat.value !== "number")
@@ -372,4 +448,76 @@ export async function doFetch(url: `/api/${string}`, body: string, setToast: (re
     } catch (error) {
         setToast(`An error occurred:\n${error}`)
     }
+}
+
+// https://github.com/sveinn-steinarsson/flot-downsample
+export function decimate(data: [number, number][], threshold: number): [number, number][] {
+    const data_length = data.length
+    if (threshold >= data_length || threshold == 0) {
+        return data // Nothing to do
+    }
+
+    const sampled: [number, number][] = []
+    let sampled_index = 0
+
+    // Bucket size. Leave room for start and end data points
+    const every = (data_length - 2) / (threshold - 2)
+
+    let a = 0,  // Initially a is the first point in the triangle
+        max_area_point,
+        max_area,
+        area,
+        next_a
+
+    sampled[sampled_index++] = data[a] // Always add the first point
+
+    for (let i = 0; i < threshold - 2; i++) {
+
+        // Calculate point average for next bucket (containing c)
+        let avg_x = 0,
+            avg_y = 0,
+            avg_range_start = Math.floor((i + 1) * every) + 1,
+            avg_range_end = Math.floor((i + 2) * every) + 1
+        avg_range_end = avg_range_end < data_length ? avg_range_end : data_length
+
+        const avg_range_length = avg_range_end - avg_range_start
+
+        for (; avg_range_start < avg_range_end; avg_range_start++) {
+            avg_x += data[avg_range_start][0] * 1 // * 1 enforces Number (value may be Date)
+            avg_y += data[avg_range_start][1] * 1
+        }
+        avg_x /= avg_range_length
+        avg_y /= avg_range_length
+
+        // Get the range for this bucket
+        let range_offs = Math.floor((i + 0) * every) + 1
+        const range_to = Math.floor((i + 1) * every) + 1
+
+        // Point a
+        const point_a_x = data[a][0] * 1, // enforce Number (value may be Date)
+            point_a_y = data[a][1] * 1
+
+        max_area = area = -1
+
+        for (; range_offs < range_to; range_offs++) {
+            // Calculate triangle area over three buckets
+            area = Math.abs((point_a_x - avg_x) * (data[range_offs][1] - point_a_y) -
+                (point_a_x - data[range_offs][0]) * (avg_y - point_a_y)
+            ) * 0.5
+            if (area > max_area) {
+                max_area = area
+                max_area_point = data[range_offs]
+                next_a = range_offs // Next a is this b
+            }
+        }
+
+        if (max_area_point)
+            sampled[sampled_index++] = max_area_point // Pick this point from the bucket
+        if (next_a)
+            a = next_a // This a is the next a (chosen b)
+    }
+
+    sampled[sampled_index++] = data[data_length - 1] // Always add last
+
+    return sampled
 }

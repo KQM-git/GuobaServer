@@ -3,7 +3,8 @@ import { parse, serialize } from "cookie"
 import { GetServerSidePropsContext, GetServerSidePropsResult, PreviewData } from "next"
 import { ParsedUrlQuery } from "querystring"
 import { config } from "./config"
-import { DiscordGuild, DiscordUser, ExperimentInfo, ExperimentInfoWithLines, GOODData } from "./types"
+import { artifactInfo, slotInfo, statInfo } from "./data"
+import { DiscordGuild, DiscordUser, EnkaData, ExperimentInfo, ExperimentInfoWithLines, GOODData, IArtifact } from "./types"
 export const prisma = new PrismaClient()
 
 export async function getExperimentList() {
@@ -232,33 +233,115 @@ export async function addGOOD(user: string, good: GOODData, hasChars: boolean, h
 }
 
 export async function verifyData(user: string) {
-    console.log(`Verifying user data ${user}`)
-    const current = await prisma.user.findUnique({
+    const userInfo = await prisma.user.findUnique({
         where: { id: user },
         select: {
+            uid: true,
             currentGOOD: {
-                select: { id: true }
+                select: {
+                    id: true,
+                    verified: true,
+                    verificationArtifacts: true,
+                    verifiedArtifacts: true,
+                 }
             }
         }
     })
 
-    if (!current || !current.currentGOOD)
-        return false
+    console.log(`Verifying user data ${user} with enka (UID: ${userInfo?.uid})...`)
+
+    if (!userInfo || !userInfo.currentGOOD)
+        throw "No user data linked?"
+
+    const enkaResponse = await (await fetch(`https://enka.network/u/${userInfo.uid}/__data.json`, { headers: { "User-Agent": "GUOBA - Tibot/5.0" } })).json() as EnkaData
+    if (!enkaResponse.playerInfo)
+        throw "No data found on Enka.Network? Please try again later or contact us if this keeps persisting."
+
+    if (!enkaResponse.avatarInfoList)
+        throw "Profile is not public"
+
+    const artifacts = enkaResponse.avatarInfoList.flatMap(x => x.equipList.filter(e => e.reliquary))
+
+    let verifiedArtifacts = userInfo.currentGOOD.verifiedArtifacts
+
+    ;(userInfo.currentGOOD.verificationArtifacts as any as IArtifact[]).forEach((a, i) => {
+        const artifact = artifactInfo.find(x => x.artifactKey == a.setKey)
+        if (!artifact) throw `Could not find artifact key ${a.setKey}`
+
+        const slot = slotInfo.find(x => x.slotKey == a.slotKey)
+        if (!slot) throw `Could not find slot key ${a.slotKey}`
+
+        const main = statInfo.find(x => x.statKey == a.mainStatKey)
+        if (!main) throw `Could not find main key ${a.mainStatKey}`
+
+        const veriSubs = a.substats.filter(a => a.key).sort((a, b) => a.key.localeCompare(b.key))
+        if (artifacts.some(({ flat }, j) => {
+            if (flat.equipType != slot.data) return false
+            if (!flat.icon.startsWith(`UI_RelicIcon_${artifact.data}_`)) return false
+            if (flat.reliquaryMainstat?.mainPropId != main.data) return false
+
+            const eaSubs = flat.reliquarySubstats?.filter(x => x.appendPropId).sort((a, b) => {
+                const subKeyA = statInfo.find(x => x.data == a.appendPropId)
+                if (!subKeyA) throw `Could not find substat ${a.appendPropId}`
+                const subKeyB = statInfo.find(x => x.data == b.appendPropId)
+                if (!subKeyB) throw `Could not find substat ${b.appendPropId}`
+
+                return subKeyA.statKey.localeCompare(subKeyB.statKey)
+            })
+            if (!eaSubs) return false
+
+            if (veriSubs.length != eaSubs.length) return false
+            for (let i = 0; i < veriSubs.length; i++) {
+                const veriSub = veriSubs[i], eaSub = eaSubs[i]
+
+                const eaSubInfo = statInfo.find(x => x.data == eaSub.appendPropId)
+                if (veriSub.key !== eaSubInfo?.statKey) return false
+                const maxDiff = veriSub.key.endsWith("_") ? 0.1 : 1
+                if (Math.abs(veriSub.value - eaSub.statValue) > maxDiff) return false
+            }
+
+            artifacts.splice(j, 1)
+            // console.log("Verified", i, flat, a)
+            return true
+        }))
+            verifiedArtifacts.push(i)
+    })
+    verifiedArtifacts = verifiedArtifacts.filter((v, i, arr) => arr.indexOf(v) == i).sort((a, b) => a - b)
+
+    const verified = verifiedArtifacts.length == userInfo.currentGOOD.verificationArtifacts.length
 
     await prisma.gOOD.update({
-        where: { id: current.currentGOOD.id },
+        where: { id: userInfo.currentGOOD.id },
         data: {
-            // TODO store enka
-            verified: true,
-            verifiedTime: new Date()
+            verified,
+            verifiedArtifacts,
+            verifiedTime: new Date(),
+            enkaResponses: {
+                create: {
+                    data: enkaResponse as any
+                }
+            }
         },
         select: { id: true }
     })
+
+   return verified
 }
 
 export async function getGOOD(id: number) {
     return await prisma.gOOD.findUnique({
-        where: { id }
+        where: { id },
+        select: {
+            data: true,
+            verified: true,
+            verificationArtifacts: true,
+            verifiedArtifacts: true,
+            enkaResponses: {
+                orderBy: { createdOn: "desc" },
+                select: { createdOn: true, data: true },
+                take: 1
+            }
+        }
     })
 }
 

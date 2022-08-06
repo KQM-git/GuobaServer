@@ -65,13 +65,14 @@ model Authentication {
 }
 
 model GOOD {
-  id                    Int       @id @default(autoincrement())
-  createdOn             DateTime  @default(now())
+  id                    Int            @id @default(autoincrement())
+  createdOn             DateTime       @default(now())
   data                  Json
-  verified              Boolean   @default(false)
+  verified              Boolean        @default(false)
   verifiedTime          DateTime?
+  verifiedArtifacts     Int[]          @default([])
   verificationArtifacts Json[]
-  enkaResponse          Json?
+  enkaResponses         EnkaResponse[]
 
   hasChars         Boolean            @default(false)
   hasWeapons       Boolean            @default(false)
@@ -80,6 +81,14 @@ model GOOD {
   ownerId          String?
   experimentData   ExperimentData[]
   calculationQueue CalculationQueue[]
+}
+
+model EnkaResponse {
+  id        Int      @id @default(autoincrement())
+  createdOn DateTime @default(now())
+  data      Json
+  good      GOOD     @relation(fields: [GOODId], references: [id])
+  GOODId    Int
 }
 
 model Experiment {

@@ -1,4 +1,3 @@
-import { Affiliation } from "@prisma/client"
 import {
   BarElement, CategoryScale, Chart as ChartJS, Filler, Legend, LinearScale, LineElement, PointElement, Tooltip
 } from "chart.js"
@@ -66,6 +65,7 @@ export default function Experiment({ location, meta, data, next, prev, affiliati
   const [showBoth, setShowBoth] = useState(false)
   const [markedUser, setMarkedUser] = useState(UNSELECTED)
   const [percentiles, setPercentiles] = useState([5, 25, 50, 75, 95])
+  const [threshold, setThreshold] = useState(500)
   const [toast, setToast] = useState("")
 
   useEffect(() => {
@@ -82,6 +82,11 @@ export default function Experiment({ location, meta, data, next, prev, affiliati
     shownData = [...data.filter(x => x.id == markedUser.value), ...getPercentiles(data, meta, percentiles)]
   else if (showBoth)
     shownData = [...data, ...getPercentiles(data, meta, percentiles)]
+
+  /* shownData = shownData.map(x => ({
+    ...x,
+    stats: decimate(x.stats, threshold)
+  }))*/
 
   return (
     <main className="max-w-5xl w-full px-1">
@@ -154,6 +159,7 @@ export default function Experiment({ location, meta, data, next, prev, affiliati
       <CheckboxInput label="Show percentiles" set={setShowPercentiles} value={showPercentiles} />
       {showPercentiles && <CheckboxInput label="Show both users and percentiles" set={setShowBoth} value={showBoth} />}
       {showPercentiles && <NumberInputList label="Shown percentiles" set={setPercentiles} value={percentiles} defaultValue={50} min={0} max={100} />}
+      {false && <NumberInput label="Decimate graph data" set={setThreshold} value={threshold} min={0} step={10} />}
       <SelectInput<string | number> label="Focused user" set={setMarkedUser} value={markedUser.value} options={[
         UNSELECTED,
         ...(showSpecialData ? meta.special.map(x => ({ label: x.name, value: x.id })) : []),
@@ -304,29 +310,29 @@ function Leaderboard({
           .filter((_, i, arr) => expanded ? true : (i < 10))
           .map((c, index) => {
 
-          return <tr className={`${markedUser == c.id ? "font-bold" : ""}`} key={index}>
-            <td>{isSpecial(c) ? "" : `#${++i}`}</td>
-            <td>{isSpecial(c) ? c.name : <DiscordUser user={c} />}</td>
-            <td>{isSpecial(c) ? "" : c.ar.toLocaleString()}</td>
-            <td>{isSpecial(c) ? "" : c.affiliations?.map(a => affiliations[a]).map(a => <AffiliationLabel key={a.id} affiliation={a} />)}</td>
-            {meta.x && <td>{c.bestStats?.[0]?.toLocaleString() ?? "---"}</td>}
-            <td>{c.bestStats?.[1]?.toLocaleString() ?? "---"}</td>
-            <td>{!isSpecial(c) && <button
-              className="btn btn-primary btn-sm"
-              onClick={async () => {
-                try {
-                  setToast("Loading...")
-                  copy(JSON.stringify(mergeTemplate(await (await fetch(`/api/good?id=${c.GOODId}`)).json(), meta.template)))
-                  setToast("Copied!")
-                } catch (error) {
-                  setToast(error + "")
-                }
-              }}
-            >
-              Copy
-            </button>}</td>
-          </tr>
-        })}
+            return <tr className={`${markedUser == c.id ? "font-bold" : ""}`} key={index}>
+              <td>{isSpecial(c) ? "" : `#${++i}`}</td>
+              <td>{isSpecial(c) ? c.name : <DiscordUser user={c} />}</td>
+              <td>{isSpecial(c) ? "" : c.ar.toLocaleString()}</td>
+              <td>{isSpecial(c) ? "" : c.affiliations?.map(a => affiliations[a]).map(a => <AffiliationLabel key={a.id} affiliation={a} />)}</td>
+              {meta.x && <td>{c.bestStats?.[0]?.toLocaleString() ?? "---"}</td>}
+              <td>{c.bestStats?.[1]?.toLocaleString() ?? "---"}</td>
+              <td>{!isSpecial(c) && <button
+                className="btn btn-primary btn-sm"
+                onClick={async () => {
+                  try {
+                    setToast("Loading...")
+                    copy(JSON.stringify(mergeTemplate(await (await fetch(`/api/good?id=${c.GOODId}`)).json(), meta.template)))
+                    setToast("Copied!")
+                  } catch (error) {
+                    setToast(error + "")
+                  }
+                }}
+              >
+                Copy
+              </button>}</td>
+            </tr>
+          })}
         {!expanded && data.length > 10 && <tr className="pr-1 cursor-pointer text-blue-700 dark:text-blue-300 hover:text-blue-400 dark:hover:text-blue-400 no-underline transition-all duration-200 font-semibold">
           <td colSpan={!meta.x ? 6 : 7} style={({ textAlign: "center" })}>Click to expand...</td>
         </tr>}
@@ -369,7 +375,6 @@ function getPercentiles(data: ExperimentData[], meta: ExperimentMeta, percents: 
     stats: p.stats
   }))
 }
-
 
 function getColor(data: {
   id: string | number

@@ -79,7 +79,7 @@ export default function SubmitPage({ user, affiliations }: Props) {
         </ul>
       </div>
 
-      <h3 className="text-2xl font-bold pt-1" id="about">Instructions</h3>
+      <h3 className="text-2xl font-bold pt-1" id="instructions">Instructions</h3>
       <p>
         Enter your artifacts (and optionally, weapon and character data) into <FormattedLink href="https://frzyc.github.io/genshin-optimizer/"
           target="go">Genshin Optimizer</FormattedLink> by either manually entering them (not recommended) or via some scanner (read <FormattedLink
@@ -154,7 +154,7 @@ export default function SubmitPage({ user, affiliations }: Props) {
           validation.charError ||
           "Check this if your GOOD dump contains all your characters, of which character level/ascensions and talent levels are correct. Equipped artifacts/weapons are ignored."
         }>
-        <label className="cursor-pointer label justify-start" >
+        <label className="cursor-pointer label pl-0" >
           <span className="font-semibold">Contains correct character data</span>
           <input
             type="checkbox"
@@ -182,7 +182,7 @@ export default function SubmitPage({ user, affiliations }: Props) {
           validation.weaponError ||
           "Check this if your GOOD dump contains all your 4 and 5 star weapons, of which level/ascension and refinement are correct. Which character it's equipped by are ignored."
         }>
-        <label className="cursor-pointer label justify-start" >
+        <label className="cursor-pointer label pl-0" >
           <span className="font-semibold">Contains correct weapon data</span>
           <input
             type="checkbox"
@@ -207,7 +207,7 @@ export default function SubmitPage({ user, affiliations }: Props) {
       <div
         className={`tooltip ${validation.uidError ? "tooltip-error text-error" : ""}`}
         data-tip={validation.uidError || enkaDesc}>
-        <label className="cursor-pointer label justify-start" >
+        <label className="cursor-pointer label pl-0" >
           <span className="font-semibold">UID</span>
           <input
             type="text"
@@ -227,14 +227,15 @@ export default function SubmitPage({ user, affiliations }: Props) {
       </div>
       <br />
 
-      <NumberInput label="Average in-game ping" value={ping} set={setPing} />
+      <NumberInput label="Average in-game ping" labelClass="font-semibold" value={ping} set={setPing} />
 
       <CheckboxInput label="Stable in-game ping" labelClass="font-semibold" value={stablePing} set={setStablePing} />
 
+      <h4 className="font-semibold mt-2">Select which affiliation/flag(s) you&apos;d like to run under:</h4>
       <AffiliationSelector selectedAffiliations={selectedAffiliations} setSelected={setSelected} affiliations={affiliations} />
 
       <button
-        className={`btn btn-primary w-full ${Object.values(validation).some(x => x && x.length > 0) ? "btn-disabled" : ""} my-2`}
+        className={`btn btn-primary w-full ${Object.values(validation).some(x => x && x.length > 0) ? "btn-disabled" : ""} my-8`}
         onClick={async () => {
           try {
             if (!isValidSubmission(goodText, hasChars, hasWeapons, uid)) {

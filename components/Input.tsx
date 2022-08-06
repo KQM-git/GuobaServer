@@ -36,11 +36,11 @@ export function SelectInput<T extends string | number>({ value, set, label, opti
   </label></div>
 }
 
-export function NumberInput({ value, set, label, min, max }: { value: number, set: (newValue: number) => unknown, label: string, min?: number, max?: number }) {
+export function NumberInput({ value, set, label, labelClass, min, max, step }: { value: number, set: (newValue: number) => unknown, label: string, min?: number, max?: number, step?: number, labelClass?: string }) {
   return <div><label>
-    {label}
+    <span className={labelClass}>{label}</span>
     <input
-      className="input input-sm m-1"
+      className="input input-sm input-bordered m-1"
       value={value}
       onChange={(e) => {
         const value = +e.target.value
@@ -48,10 +48,11 @@ export function NumberInput({ value, set, label, min, max }: { value: number, se
       }}
       min={min}
       max={max}
+      step={step}
       type="number"
     />
-    <button className={`${value == min ? "bg-slate-800 text-slate-50" : "bg-red-500 text-slate-50 cursor-pointer"} text-center rounded-lg px-1 inline-block ml-2 md:sr-only`} tabIndex={-1} onClick={() => (min == undefined || value > min) ? set(value - 1) : void 0}>Subtract 1</button>
-    <button className={`${value == max ? "bg-slate-800 text-slate-50" : "bg-green-500 text-slate-50 cursor-pointer"} text-center rounded-lg px-1 inline-block ml-2 md:sr-only`} tabIndex={-1} onClick={() => (max == undefined || value < max) ? set(value + 1) : void 0}>Add 1</button>
+    <button className={`${value == min ? "bg-slate-800 text-slate-50" : "bg-red-500 text-slate-50 cursor-pointer"} text-center rounded-lg px-1 inline-block ml-2 md:sr-only`} tabIndex={-1} onClick={() => (min == undefined || value > min) ? set(value - (step ?? 1)) : void 0}>Subtract {(step ?? 1)}</button>
+    <button className={`${value == max ? "bg-slate-800 text-slate-50" : "bg-green-500 text-slate-50 cursor-pointer"} text-center rounded-lg px-1 inline-block ml-2 md:sr-only`} tabIndex={-1} onClick={() => (max == undefined || value < max) ? set(value + (step ?? 1)) : void 0}>Add {(step ?? 1)}</button>
 
   </label></div>
 }

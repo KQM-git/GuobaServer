@@ -30,3 +30,6 @@ thead {
 }
 
 
+.rarity-5 {
+    background-color: linear-gradient(to bottom right,#695453,#e6ac54);
+}

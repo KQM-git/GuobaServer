@@ -35,7 +35,7 @@ export interface GOODData {
     buildSettings?: any[]
 }
 
-interface IArtifact {
+export interface IArtifact {
     setKey: string // e.g. "GladiatorsFinale"
     slotKey: SlotKey // e.g. "plume"
     level: number // 0-20 inclusive
@@ -45,9 +45,9 @@ interface IArtifact {
     // lock: boolean // Whether the artifact is locked in game.
     substats: ISubstat[]
 }
-
+export type SubStatKey = "hp" | "hp_" | "atk" | "atk_" | "def" | "def_" | "enerRech_" | "eleMas" | "critRate_" | "critDMG_"
 interface ISubstat {
-    key: string // e.g. "critDMG_"
+    key: SubStatKey // e.g. "critDMG_"
     value: number // e.g. 19.4
 }
 
@@ -148,4 +148,98 @@ export interface ExperimentData {
     stats: [number, number][]
     affiliations: number[]
     ar: number
+}
+
+export interface EnkaData {
+    playerInfo: PlayerInfo
+    avatarInfoList?: AvatarInfoList[]
+    ttl: number
+}
+
+export interface AvatarInfoList {
+    avatarId: number
+    propMap: { [key: string]: PropMap }
+    fightPropMap: { [key: string]: number }
+    skillDepotId: number
+    inherentProudSkillList: number[]
+    skillLevelMap: { [key: string]: number }
+    equipList: EquipList[]
+    fetterInfo: FetterInfo
+    talentIdList?: number[]
+    proudSkillExtraLevelMap?: { [key: string]: number }
+}
+
+export interface EquipList {
+    itemId: number
+    reliquary?: Reliquary
+    flat: Flat
+    weapon?: Weapon
+}
+
+export interface Flat {
+    nameTextMapHash: string
+    setNameTextMapHash?: string
+    rankLevel: number
+    reliquaryMainstat?: ReliquaryMainstat
+    reliquarySubstats?: Stat[]
+    itemType: string
+    icon: string
+    equipType?: string
+    weaponStats?: Stat[]
+}
+
+export interface ReliquaryMainstat {
+    mainPropId: string
+    statValue: number
+}
+
+export interface Stat {
+    appendPropId: string
+    statValue: number
+}
+
+
+export interface Reliquary {
+    level: number
+    mainPropId: number
+    appendPropIdList: number[]
+}
+
+export interface Weapon {
+    level: number
+    promoteLevel: number
+    affixMap: { [key: string]: number }
+}
+
+export interface FetterInfo {
+    expLevel: number
+}
+
+export interface PropMap {
+    type: number
+    ival: string
+    val?: string
+}
+
+export interface PlayerInfo {
+    nickname: string
+    level: number
+    signature: string
+    worldLevel?: number
+    nameCardId: number
+    finishAchievementNum: number
+    towerFloorIndex?: number
+    towerLevelIndex?: number
+    showAvatarInfoList?: ShowAvatarInfoList[]
+    showNameCardIdList?: number[]
+    profilePicture: ProfilePicture
+}
+
+export interface ProfilePicture {
+    avatarId: number
+}
+
+export interface ShowAvatarInfoList {
+    avatarId: number
+    level: number
 }

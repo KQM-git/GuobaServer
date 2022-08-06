@@ -8,9 +8,9 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
     if (!user) return res.send({ error: "Not logged in!" })
 
     try {
-        // TODO verify w/ enka?
-        await verifyData(user.id)
-        return res.send({ redirect: "/user/processing" })
+        if (await verifyData(user.id))
+            return res.send({ redirect: "/user/processing" })
+        return res.send({ ok: "Not fully verified" })
     } catch (error) {
         return res.send({ error: "An unknown error occurred!" })
     }

@@ -113,6 +113,11 @@ export default function TemplateCreatorPage() {
             Setting a plotbase is required for Theorycrafting mode in GO. Please set an &apos;Optimization Target vs ...&apos;.
             </p>
           }
+          {(template.template.characters[0].team ?? []).filter((x: string) => x).length > 0 &&
+            <p className="text-error my-1">
+              Team mates are defined! These are&apos;t properly supported in AutoGO!
+            </p>
+          }
           {Object.keys(template.template.buildSettings[0].artSetExclusion ?? {}).length > 0 &&
             <p className="text-warning my-1">
               This template contains <code>artSetExclusion</code> which might not be what you want. If you want to <i>include</i> only certain artifacts
