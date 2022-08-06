@@ -82,7 +82,7 @@ export const substats: Record<SubStatKey, number> = {
     "atk": 19.45,
     "atk_": 5.83,
     "def": 23.15,
-    "def_": 6.56,
+    "def_": 7.29,
     "enerRech_": 6.48,
     "eleMas": 23.31,
     "critRate_": 3.89,
@@ -91,7 +91,7 @@ export const substats: Record<SubStatKey, number> = {
 
 export function pickArtifacts(userGood: GOODData) {
     const value = userGood.artifacts.sort((a, b) => getRVValue(b) - getRVValue(a)).slice(0, 100)
-    const sum = userGood.artifacts.sort((a, b) => getRVSum(b) - getRVSum(a)).slice(0, 1)
+    const sum = userGood.artifacts.sort((a, b) => getRVSum(b) - getRVSum(a)).slice(0, 2)
     const max = userGood.artifacts.sort((a, b) => getRVMax(b) - getRVMax(a)).slice(0, 1)
 
     const final: IArtifact[] = [
