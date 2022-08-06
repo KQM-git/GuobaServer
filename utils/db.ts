@@ -157,6 +157,7 @@ export async function getUser(id: string, showAll: boolean) {
                     hasChars: true,
                     hasWeapons: true,
                     verified: true,
+                    verifiedArtifacts: true,
                     verificationArtifacts: true,
                     verifiedTime: true
                 }
@@ -310,15 +311,20 @@ export async function verifyData(user: string) {
 
     const verified = verifiedArtifacts.length == userInfo.currentGOOD.verificationArtifacts.length
 
-    await prisma.gOOD.update({
-        where: { id: userInfo.currentGOOD.id },
+    await prisma.user.update({
+        where: { id: user },
         data: {
-            verified,
-            verifiedArtifacts,
-            verifiedTime: new Date(),
-            enkaResponses: {
-                create: {
-                    data: enkaResponse as any
+            ar: enkaResponse.playerInfo.level,
+            currentGOOD: {
+                update: {
+                    verified,
+                    verifiedArtifacts,
+                    verifiedTime: new Date(),
+                    enkaResponses: {
+                        create: {
+                            data: enkaResponse as any
+                        }
+                    }
                 }
             }
         },

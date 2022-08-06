@@ -18,14 +18,14 @@ export function Artifact({ artifact, debug }: { artifact: IArtifact, debug?: boo
         <img className="float-right h-full" src={getImgURL(artifact.setKey, artifact.slotKey)} alt={tl(artifact.setKey)} />
       </div>}
     </div>
-    {debug && <div className="flex gap-2 bg-slate-900 justify-center">
+    <div className="px-2 py-0.5">
+      {artifact.substats.map((s, i) => <div key={i}>{val(s.key, s.value)}</div>)}
+    </div>
+    {debug && <div className="flex gap-2 bg-slate-900 bg-opacity-60 justify-center rounded-b-lg">
       <div>Sum: {getRVSum(artifact).toPrecision(2)}</div>
       <div>Max: {getRVMax(artifact).toPrecision(2)}</div>
       <div>Weighted: {getRVValue(artifact).toPrecision(3)}</div>
     </div>}
-    <div className="px-2 py-0.5">
-      {artifact.substats.map((s, i) => <div key={i}>{val(s.key, s.value)}</div>)}
-    </div>
   </div>
 }
 

@@ -118,6 +118,7 @@ export type DetailedUserInfo = User & {
         hasWeapons: boolean
         verified: boolean
         verificationArtifacts: any[]
+        verifiedArtifacts: number[]
         verifiedTime: Date | null
     } | null
     goods?: {

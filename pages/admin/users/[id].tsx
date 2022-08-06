@@ -5,12 +5,13 @@ import Link from "next/link"
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
 import { AffiliationLabel } from "../../../components/Affiliation"
+import { Artifact } from "../../../components/Artifact"
 import { DiscordUser } from "../../../components/DiscordAvatar"
 import FormattedLink from "../../../components/FormattedLink"
 import { SelectInput } from "../../../components/Input"
 import { LoginInfo } from "../../../components/LoginInfo"
 import { getUser, getUserFromCtx, isUser } from "../../../utils/db"
-import { DetailedUserInfo, GOODData } from "../../../utils/types"
+import { DetailedUserInfo, GOODData, IArtifact } from "../../../utils/types"
 import { copy, dateFormatter, doFetch, mergeTemplate } from "../../../utils/utils"
 
 interface Props {
@@ -40,6 +41,10 @@ export default function UserPage({ user, targetUser }: Props) {
       return () => clearTimeout(id)
     }
   }, [toast])
+
+  const good = targetUser.currentGOOD
+  const verified = good?.verificationArtifacts.filter((_, i) => good?.verifiedArtifacts.includes(i) ?? false)
+  const unverified = good?.verificationArtifacts.filter((_, i) => !(good?.verifiedArtifacts.includes(i) ?? false))
 
   return (
     <main className="max-w-5xl w-full px-1">
@@ -131,6 +136,16 @@ export default function UserPage({ user, targetUser }: Props) {
       </label>
 
       <label className="justify-start label" >
+        <span className="font-semibold">AR</span>
+        <input
+          type="text"
+          className="input input-bordered input-sm w-full max-w-xs mx-3"
+          disabled
+          value={targetUser.ar ?? "?"}
+        />
+      </label>
+
+      <label className="justify-start label" >
         <span className="font-semibold">Affiliations</span>
         <div className="m-1">{targetUser.affiliations.map(a => <AffiliationLabel key={a.id} affiliation={a} />)}</div>
       </label>
@@ -170,12 +185,12 @@ export default function UserPage({ user, targetUser }: Props) {
         />
       </label>
 
-      {targetUser.currentGOOD && <div>
+      {good && <div>
         <div className="divider" />
         <h4 className="text-lg font-semibold py-2">Current GOOD information</h4>
 
         <div>
-          Created on <span className="font-semibold" suppressHydrationWarning>{dateFormatter.format(targetUser.currentGOOD.createdOn)}</span>. ID: {targetUser.GOODId}
+          Created on <span className="font-semibold" suppressHydrationWarning>{dateFormatter.format(good.createdOn)}</span>. ID: {targetUser.GOODId}
         </div>
 
         {loadedData && <button
@@ -191,7 +206,7 @@ export default function UserPage({ user, targetUser }: Props) {
             type="checkbox"
             className="checkbox checkbox-accent mx-3"
             disabled
-            checked={targetUser.currentGOOD.hasChars}
+            checked={good.hasChars}
           />
         </label>
 
@@ -201,7 +216,7 @@ export default function UserPage({ user, targetUser }: Props) {
             type="checkbox"
             className="checkbox checkbox-accent mx-3"
             disabled
-            checked={targetUser.currentGOOD.hasWeapons}
+            checked={good.hasWeapons}
           />
         </label>
 
@@ -211,13 +226,29 @@ export default function UserPage({ user, targetUser }: Props) {
             type="checkbox"
             className="checkbox checkbox-accent mx-3"
             disabled
-            checked={targetUser.currentGOOD.verified}
+            checked={good.verified}
           />
         </label>
 
-        {targetUser.currentGOOD.verifiedTime && <div>
-          Verified on <span className="font-semibold" suppressHydrationWarning>{dateFormatter.format(targetUser.currentGOOD.verifiedTime)}</span>
+        {good.verifiedTime && <div>
+          {good.verified ? "Verified" : "Last verification attempt"} on <span className="font-semibold" suppressHydrationWarning>
+            {dateFormatter.format(good.verifiedTime)}
+          </span>
         </div>}
+
+        <h2 className="text-2xl font-bold pt-1" id="artifacts">Verification artifacts</h2>
+        {(verified?.length ?? 0) > 0 && <>
+          <h2 className="text-1xl font-bold pt-1" id="artifacts">Verified</h2>
+          <div className="flex flex-wrap w-full">
+            {verified?.map((a, i) => <Artifact key={i} debug={true} artifact={a as any as IArtifact} />)}
+          </div>
+        </>}
+        {(unverified?.length ?? 0) > 0 && <>
+          <h2 className="text-1xl font-bold pt-1" id="artifacts">Unverified</h2>
+          <div className="flex flex-wrap w-full">
+            {unverified?.map((a, i) => <Artifact key={i} debug={true} artifact={a as any as IArtifact} />)}
+          </div>
+        </>}
 
         <button
           className="btn btn-error m-2"
@@ -230,7 +261,7 @@ export default function UserPage({ user, targetUser }: Props) {
           Unlink GOOD data
         </button>
       </div>}
-      {!targetUser.currentGOOD && targetUser.goods && <div>
+      {!good && targetUser.goods && <div>
         <SelectInput
           label="Relink GOOD"
           options={[

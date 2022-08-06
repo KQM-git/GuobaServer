@@ -27,14 +27,10 @@ export default function VerifyPage({ user, artifacts, previousResult }: Props) {
 
   const [toast, setToast] = useState("")
   const [ttl, setTTL] = useState(previousResult?.ttl ?? -1)
-  const [targetTime, setTargetTime] = useState(0)
+  const [targetTime] = useState(Date.now() + (previousResult?.ttl ?? -10000))
 
   useEffect(() => {
-    if (previousResult?.ttl)
-    setTargetTime(Date.now() + previousResult.ttl * 1000)
-  }, [previousResult])
-
-  useEffect(() => {
+    console.log(ttl)
     if (ttl < 0) return
 
     const timeout = setTimeout(() => {
