@@ -90,14 +90,15 @@ export const substats: Record<SubStatKey, number> = {
 }
 
 export function pickArtifacts(userGood: GOODData) {
-    const value = userGood.artifacts.sort((a, b) => getRVValue(b) - getRVValue(a)).slice(0, 100)
+    const value = userGood.artifacts.sort((a, b) => getRVValue(b) - getRVValue(a)).slice(0)
     const sum = userGood.artifacts.sort((a, b) => getRVSum(b) - getRVSum(a) || getRVValue(b) - getRVValue(a)).slice(0, 2)
     const max = userGood.artifacts.sort((a, b) => getRVMax(b) - getRVMax(a) || getRVValue(b) - getRVValue(a)).slice(0, 1)
 
     const final: IArtifact[] = [
+        ...sum.splice(0, 1),
+        ...max,
         ...value.slice(0, 6),
         ...sum,
-        ...max,
         ...value,
     ].filter((v, i, arr) => arr.indexOf(v) == i)
      .filter((v, i, arr) => arr.filter((a, j) => j < i && a.slotKey == v.slotKey).length < 3)
