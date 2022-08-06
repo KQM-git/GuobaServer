@@ -12,6 +12,6 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
             return res.send({ redirect: "/user/processing" })
         return res.send({ ok: "Not fully verified" })
     } catch (error) {
-        return res.send({ error: "An unknown error occurred!" })
+        return res.send({ error })
     }
 }

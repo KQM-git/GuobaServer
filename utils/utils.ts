@@ -91,8 +91,8 @@ export const substats: Record<SubStatKey, number> = {
 
 export function pickArtifacts(userGood: GOODData) {
     const value = userGood.artifacts.sort((a, b) => getRVValue(b) - getRVValue(a)).slice(0, 100)
-    const sum = userGood.artifacts.sort((a, b) => getRVSum(b) - getRVSum(a)).slice(0, 2)
-    const max = userGood.artifacts.sort((a, b) => getRVMax(b) - getRVMax(a)).slice(0, 1)
+    const sum = userGood.artifacts.sort((a, b) => getRVSum(b) - getRVSum(a) || getRVValue(b) - getRVValue(a)).slice(0, 2)
+    const max = userGood.artifacts.sort((a, b) => getRVMax(b) - getRVMax(a) || getRVValue(b) - getRVValue(a)).slice(0, 1)
 
     const final: IArtifact[] = [
         ...value.slice(0, 6),
@@ -213,6 +213,9 @@ export function validateGOOD(input: unknown) {
 
     if (json.artifacts.length > 1520)
         throw { goodError: `Too many artifacts (found ${json.artifacts.length})` }
+
+    if (json.artifacts.length < 10)
+        throw { goodError: `Not enough artifacts provided (found ${json.artifacts.length}) - Please add more artifacts, we need the data for lunch ;-).` }
 
     for (const artifact of json.artifacts) {
         if (typeof artifact.setKey !== "string" || !artifactKeys.includes(artifact.setKey))
