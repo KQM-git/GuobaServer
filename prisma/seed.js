@@ -1,28 +1,34 @@
 const { PrismaClient } = require("@prisma/client")
 const { readdir, readFile } = require("fs/promises")
 
-const folder = "../good"
+const goodFolder = "../good"
 
 async function main() {
     const prisma = new PrismaClient()
 
-    const folder = await readdir(folder)
+    const folder = await readdir(goodFolder)
+    const users = folder.filter(user => user.endsWith(".json"))
 
-    console.log("Creating users...")
-    await prisma.user.createMany({
-        data: await Promise.all(folder.filter(user => user.endsWith(".json")).map(async (user) => ({
-            avatar: "",
-            id: user,
-            tag: "1234",
-            username: "Legacy user",
-            currentGOOD: {
-                create: {
-                    data: JSON.parse(await readFile(`${folder}/${user}`)),
-                    verified: true
+    let i = 0
+    for (const user of users) {
+        if (i++ % 50 == 0)
+            console.log(`Creating ${i}/${users.length} users...`)
+
+        await prisma.user.create({
+            data: {
+                avatar: "",
+                id: user,
+                tag: "1234",
+                username: "Legacy user",
+                currentGOOD: {
+                    create: {
+                        data: JSON.parse(await readFile(`${goodFolder}/${user}`)),
+                        verified: true
+                    }
                 }
             }
-        })))
-    })
+        })
+    }
 }
 
 main()
