@@ -241,7 +241,7 @@ export function validateGOOD(input: unknown) {
         for (const substat of artifact.substats) {
             if (typeof substat !== "object")
                 throw { goodError: `Unknown artifact substat ${JSON.stringify(substat)}` }
-            if (typeof substat.key !== "string" || !Object.keys(substats).includes(substat.key))
+            if (typeof substat.key !== "string" || !["", ...Object.keys(substats)].includes(substat.key))
                 throw { goodError: `Unknown artifact substat type ${JSON.stringify(substat.key)}` }
 
             if (typeof substat.value !== "number")
