@@ -27,7 +27,7 @@ export default function VerifyPage({ user, artifacts, previousResult }: Props) {
 
   const [toast, setToast] = useState("")
   const [ttl, setTTL] = useState(previousResult?.ttl ?? -1)
-  const [targetTime] = useState(Date.now() + (previousResult?.ttl ?? -10000))
+  const [targetTime] = useState(Date.now() + (previousResult?.ttl ?? -10) * 1000)
 
   useEffect(() => {
     console.log(ttl)
