@@ -13,7 +13,7 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
     const computer = await prisma.computer.findUnique({ where: { token } })
     if (computer == null) return res.send({ error: "Unknown token!" })
 
-    console.log(`Received GOOD request for ${token}`)
+    console.log(`Received GOOD request for ${token.slice(0, 27)}`)
     await prisma.calculationQueue.deleteMany({
       where: { createdOn: { lt: new Date(Date.now() - 60 * 60 * 1000) } },
     })
@@ -40,11 +40,11 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
     })
 
     if (queued) {
-      console.log(`Already found GOOD request for ${token}`)
+      console.log(`Already found GOOD request for ${token.slice(0, 27)}`)
       const { character, template } = queued.experiment
       const goodData = queued.user.currentGOOD?.data
       if (!goodData) {
-        console.log(`Although, user GOOD is gone? For ${token}`)
+        console.log(`Although, user GOOD is gone? For ${token.slice(0, 27)}`)
         await prisma.calculationQueue.delete({ where: { id: queued.id } })
       } else
         return res.send({

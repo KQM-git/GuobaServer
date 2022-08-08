@@ -8,7 +8,7 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
         const { token, log, serverTime } = JSON.parse(req.body)
         if (!token || typeof token != "string" || !log || typeof log != "string" || !serverTime || typeof serverTime != "number" ) return res.send({ error: "Invalid data!" })
 
-        console.log(`Received computer log for ${token}: ${log}`)
+        console.log(`Received computer log for ${token.slice(0, 27)}: ${log}`)
         await prisma.computerLogs.create({
             data: {
                 log,

@@ -11,7 +11,7 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
     const computer = await prisma.computer.findUnique({ where: { token } })
     if (computer == null) return res.send({ error: "Unknown token!" })
 
-    console.log(`Received GOOD response for ${token}`)
+    console.log(`Received GOOD response for ${token.slice(0, 27)}`)
     const queued = await prisma.calculationQueue.findUnique({
       where: { id },
     })
