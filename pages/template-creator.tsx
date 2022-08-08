@@ -199,6 +199,8 @@ function createTemplate(good: GOODData, char: string): string | { char: string, 
 
   template.characters = template.characters.filter(x => x.key == char)
   template.buildSettings = template.buildSettings?.filter(x => x.key == char)
+  if (!template.buildSettings || template.buildSettings.length == 0)
+    return `Could not find build settings for ${char}`
 
   // Filter out other weapons
   const weapons = template.weapons?.map(x => x.key)
