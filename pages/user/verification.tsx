@@ -76,7 +76,7 @@ export default function VerifyPage({ user, artifacts, previousResult }: Props) {
           Unable to verify the following artifacts:
         </h3>
         <p>
-          If the site has trouble detecting an artifact, please contact us over at the <FormattedLink href="https://discord.gg/keqing"
+          If the site has trouble detecting an artifact, try again later. If there are still problems, please contact us over at the <FormattedLink href="https://discord.gg/keqing"
             className="link link-hover link-secondary" target="_blank">KQM Discord</FormattedLink>!
         </p>
         {ttl >= 0 && <p>Please try again when the Enka.Network cooldown expires in <Time ttl={ttl} /></p>}

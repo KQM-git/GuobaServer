@@ -251,12 +251,12 @@ export const slotInfo = [{
 }, {
     slotKey: "sands",
     data: "EQUIP_SHOES",
-    i: 1,
+    i: 5,
     tl: "Sands of Eon",
 }, {
     slotKey: "goblet",
     data: "EQUIP_RING",
-    i: 5,
+    i: 1,
     tl: "Goblet of Eonothem",
 }, {
     slotKey: "circlet",
