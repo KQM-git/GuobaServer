@@ -399,7 +399,7 @@ export function validateUID(uid: string) {
         return { uidError: "Incomplete UID" }
     if (!uid.match(/^\d+$/))
         return { uidError: "Invalid UID" }
-    if (!uid.match(/^[6-9]([0-9]{8})$/))
+    if (!uid.match(/^[125-9][0-9]{8}$/))
         return { uidError: "Unknown server" }
 
     return { uidError: "" }

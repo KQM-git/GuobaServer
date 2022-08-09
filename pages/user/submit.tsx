@@ -20,7 +20,7 @@ interface Props {
 export default function SubmitPage({ user, affiliations }: Props) {
   const desc = "Submit your GOOD data to the GUOBA overlords!"
 
-  const enkaDesc = "Your UID will be used for artifact verification (required) and server grouping. Note that since only America, Europe, Asia and SAR servers are supported by enka.network, only they are allowed."
+  const enkaDesc = "Your UID will be used for artifact verification (required) and server grouping."
   const [validation, setValidation] = useState({
     goodError: "",
     goodWarn: "Please paste your GO database here or drag/drop/upload it into the field on the right.",
@@ -86,7 +86,7 @@ export default function SubmitPage({ user, affiliations }: Props) {
             href="https://frzyc.github.io/genshin-optimizer/#/scanner" target="go-scan">GenshinOptimizer&apos;s scanner page</FormattedLink> for more information).
         Next, a GOOD export can be taken via the <FormattedLink href="https://frzyc.github.io/genshin-optimizer/#/setting"
           target="go-setting">Settings</FormattedLink> page under <i>Database Download</i>.
-        This export can then be submitted <FormattedLink href="user/submit">here</FormattedLink>.
+        Please make sure that this artifact data is correct since you&apos;ll need to verify ownership of a subset of the submitted artifacts via your UID.
       </p>
       <br />
 
