@@ -144,6 +144,16 @@ export default function UserPage({ user, targetUser }: Props) {
           value={targetUser.ar ?? "?"}
         />
       </label>
+      
+      <label className="justify-start label" >
+        <span className="font-semibold">AR XP</span>
+        <input
+          type="text"
+          className="input input-bordered input-sm w-full max-w-xs mx-3"
+          disabled
+          value={targetUser.arXP ?? "?"}
+        />
+      </label>
 
       <label className="justify-start label" >
         <span className="font-semibold">Affiliations</span>

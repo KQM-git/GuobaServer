@@ -39,6 +39,8 @@ export default function SubmitPage({ user, affiliations }: Props) {
   const [ping, setPing] = useState(0)
   const [stablePing, setStablePing] = useState(false)
 
+  const [arxp, setARXP] = useState(0)
+
   const [toast, setToast] = useState("")
 
   useEffect(() => {
@@ -231,6 +233,11 @@ export default function SubmitPage({ user, affiliations }: Props) {
 
       <CheckboxInput label="Stable in-game ping" labelClass="font-semibold" value={stablePing} set={setStablePing} />
 
+      <NumberInput label="Current Adventure Rank XP" labelClass="font-semibold" value={arxp} set={setARXP} min={0} max={340125} />
+      <p>
+        Please enter the amount visible on the pause menu. Adventure Rank will be extracted from your UID during artifact verification.
+      </p>
+
       <h4 className="font-semibold mt-2">Select which affiliation/flag(s) you&apos;d like to run under:</h4>
       <AffiliationSelector selectedAffiliations={selectedAffiliations} setSelected={setSelected} affiliations={affiliations} />
 
@@ -238,6 +245,14 @@ export default function SubmitPage({ user, affiliations }: Props) {
         className={`btn btn-primary w-full ${Object.values(validation).some(x => x && x.length > 0) ? "btn-disabled" : ""} my-8`}
         onClick={async () => {
           try {
+            if (arxp > 340125) {
+              setToast("Please correctly set your AR XP")
+              return
+            }
+            if (ping == 0) {
+              setToast("Please set your average ping")
+              return
+            }
             if (!isValidSubmission(goodText, hasChars, hasWeapons, uid)) {
               setToast("Invalid submission! Please check the required things")
               return
@@ -251,7 +266,7 @@ export default function SubmitPage({ user, affiliations }: Props) {
               hasChars, hasWeapons,
               uid, good: clean,
               affiliations: selectedAffiliations,
-              ping, stablePing
+              ping, stablePing, arxp
             }), setToast, router)
           } catch (error) {
             setToast(`An error occurred while submitting data:\n${error}`)

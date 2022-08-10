@@ -11,6 +11,7 @@ import { AffiliationLabel } from "../../components/Affiliation"
 import { DiscordUser } from "../../components/DiscordAvatar"
 import FormattedLink from "../../components/FormattedLink"
 import { CheckboxInput, NumberInput, NumberInputList, SelectInput } from "../../components/Input"
+import { levels } from "../../utils/data"
 import { getExperimentList, prisma } from "../../utils/db"
 import { ExperimentData, GOODData, PartialAffiliation, SmallExperimentMeta } from "../../utils/types"
 import { copy, download, mergeTemplate } from "../../utils/utils"
@@ -468,7 +469,7 @@ export async function getStaticProps(context: GetStaticPropsContext): Promise<Ge
                     color: true,
                     description: true,
                   }
-                }, ar: true
+                }, ar: true, arXP: true
               }
             }
           }
@@ -486,7 +487,7 @@ export async function getStaticProps(context: GetStaticPropsContext): Promise<Ge
         if (!affiliations[x.id]) affiliations[x.id] = x
         return x.id
       }),
-      ar: d.user.ar ?? 0,
+      ar: Math.min(Math.max(...levels), levels[d.user.ar ?? 0] ?? 0 + (d.user.arXP ?? 0)),
       username: d.user.username,
       id: d.userId,
       avatar: d.user.avatar,
