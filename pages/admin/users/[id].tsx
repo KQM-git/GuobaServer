@@ -144,7 +144,7 @@ export default function UserPage({ user, targetUser }: Props) {
           value={targetUser.ar ?? "?"}
         />
       </label>
-      
+
       <label className="justify-start label" >
         <span className="font-semibold">AR XP</span>
         <input
