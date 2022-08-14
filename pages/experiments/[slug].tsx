@@ -442,7 +442,8 @@ export async function getStaticProps(context: GetStaticPropsContext): Promise<Ge
     const index = experiments.findIndex(x => x.slug == slug)
     if (index < 0)
       return {
-        notFound: true
+        notFound: true,
+        revalidate: 60
       }
 
     const next = experiments[index + 1] ?? null
@@ -518,7 +519,7 @@ export async function getStaticProps(context: GetStaticPropsContext): Promise<Ge
         data: experimentData,
         affiliations
       },
-      revalidate: 60 * 60 * 1
+      revalidate: 15 * 60
     }
   } catch (error) {
     console.error(error)
