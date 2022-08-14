@@ -258,7 +258,7 @@ export async function verifyData(user: string) {
     if (userInfo.currentGOOD.verified)
         return true
 
-    const enkaResponse = await (await fetch(`https://enka.network/u/${userInfo.uid}/__data.json`, { headers: { "User-Agent": "GUOBA - Tibot/5.0" } })).json() as EnkaData
+    const enkaResponse = await (await fetch(`https://enka.network/u/${userInfo.uid}/__data.json?key=${config.enka}`, { headers: { "User-Agent": "GUOBA - Tibot/5.0" } })).json() as EnkaData
     if (!enkaResponse.playerInfo)
         throw "No data found on Enka.Network? Please try again later or contact us if this keeps persisting."
 

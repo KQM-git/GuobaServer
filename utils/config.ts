@@ -26,4 +26,5 @@ export const config = {
   clientId: validateEnv("CLIENT_ID"),
   clientSecret: validateEnv("CLIENT_SECRET"),
   appUri: validateEnv("APP_URI", "http://localhost:3000", true),
+  enka: validateEnv("ENKA")
 } as const
