@@ -27,7 +27,7 @@ export default function VerifyPage({ user, artifacts, previousResult }: Props) {
 
   const [toast, setToast] = useState("")
   const [ttl, setTTL] = useState(previousResult?.ttl ?? -1)
-  const [targetTime] = useState(Date.now() + (previousResult?.ttl ?? -10) * 1000)
+  const [targetTime, setTargetTime] = useState(Date.now() + (previousResult?.ttl ?? -10) * 1000)
 
   useEffect(() => {
     console.log(ttl)
@@ -97,6 +97,8 @@ export default function VerifyPage({ user, artifacts, previousResult }: Props) {
           className={"btn btn-primary w-full my-2"}
           onClick={async () => {
             if (ttl > 0) return
+            setTargetTime(Date.now() + 10 * 1000)
+            setTTL(10)
             await doFetch("/api/verify", "", setToast, router)
           }}
         >
