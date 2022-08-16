@@ -50,13 +50,14 @@ interface Props {
   prev?: SmallExperimentMeta,
   data: ExperimentData[],
   affiliations: Record<number, PartialAffiliation>
+  update: Date
 }
 
 const UNSELECTED = {
   label: "Select...",
   value: "UNSELECTED"
 } as { value: string | number; label: string | number; }
-export default function Experiment({ location, meta, data, next, prev, affiliations }: Props & { location: string }) {
+export default function Experiment({ location, meta, data, next, prev, affiliations, update }: Props & { location: string }) {
   const desc = `Visualization for the ${meta.name} experiment for the GUOBA project. The GUOBA Project intends to map out how the artifacts of players perform to improve mathematical models/artifact standards for calculations such as the KQMS.`
 
   const [showLines, setShowLines] = useState(true)
@@ -170,6 +171,7 @@ export default function Experiment({ location, meta, data, next, prev, affiliati
           value: x.id
         })).sort((a, b) => a.label.localeCompare(b.label))
       ]} />
+      <LastUpdated date={update} />
       <UserGraph data={shownData} showLines={showLines} meta={meta} randomColors={randomColors} markedUser={markedUser.value} showSpecialData={showSpecialData} affiliations={affiliations} />
       <button className="bg-blue-600 disabled:bg-gray-900 text-slate-50 disabled:text-slate-400 w-fit px-3 py-1 text-center rounded-lg mt-2 cursor-pointer float-right" onClick={() => {
         download(`${meta.slug}.csv`, "user,affiliation,ar,x,y\n" +
@@ -191,6 +193,35 @@ export default function Experiment({ location, meta, data, next, prev, affiliati
         </div>}
     </main>
   )
+}
+
+function LastUpdated({ date }: { date: Date }) {
+  const [now, setNow] = useState(Date.now())
+
+  function getLastUpdated(date: Date) {
+    const delta = (Date.now() - date.getTime()) / 1000
+    if (delta > 36000)
+      return `${(delta / 3600).toFixed(0)} hours ago`
+    if (delta > 3600)
+      return `${(delta / 3600).toFixed(1)} hours ago`
+    if (delta > 60)
+      return `${(delta / 60).toFixed(1)} minutes ago`
+    if (delta.toFixed(0) == "1")
+      return "1 second ago"
+    return `${delta.toFixed(0)} seconds ago`
+  }
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setNow(Date.now())
+    }, 1000 - (Date.now() - date.getTime()) % 1000)
+
+    return () => clearTimeout(timeout)
+  }, [date, now])
+
+  return <div className="tooltip float-right mr-3" data-tip={date.toLocaleString()} suppressHydrationWarning>
+    <span className="opacity-70 italic text-sm" suppressHydrationWarning>Data last updated: {getLastUpdated(date)}</span>
+  </div>
 }
 
 function UserGraph({ meta, data, showLines, randomColors, showSpecialData, markedUser, affiliations }: { meta: ExperimentMeta, data: ExperimentData[], showLines: boolean, randomColors: boolean, showSpecialData: boolean, markedUser: string | number, affiliations: Record<number, PartialAffiliation> }) {
@@ -517,7 +548,8 @@ export async function getStaticProps(context: GetStaticPropsContext): Promise<Ge
           y: data.y,
         },
         data: experimentData,
-        affiliations
+        affiliations,
+        update: new Date()
       },
       revalidate: 15 * 60
     }
