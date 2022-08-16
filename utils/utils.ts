@@ -102,18 +102,18 @@ export function pickArtifacts(userGood: GOODData) {
         ...value,
     ].filter((v, i, arr) => arr.indexOf(v) == i)
      .filter((v, i, arr) => arr.filter((a, j) => j < i && a.slotKey == v.slotKey).length < 3)
-     .slice(0, 12)
+     .slice(0, 9)
      .sort((a, b) => slotKeys.indexOf(a.slotKey) - slotKeys.indexOf(b.slotKey) || getRVValue(b) - getRVValue(a))
 
     return final
 }
 
 const value: Record<SubStatKey, number> = {
-    "hp":   1,
+    "hp":   0.9,
     "hp_":  1.5,
-    "atk":  1,
+    "atk":  0.9,
     "atk_": 1.5,
-    "def":  1,
+    "def":  0.9,
     "def_": 1.5,
     "enerRech_": 3,
     "eleMas": 3,
