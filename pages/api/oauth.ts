@@ -74,6 +74,7 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
       secure: process.env.NODE_ENV !== "development",
       sameSite: "lax",
       path: "/",
+      maxAge: 7 * 24 * 3600
     })
   )
 
