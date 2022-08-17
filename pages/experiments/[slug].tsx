@@ -352,7 +352,7 @@ function Leaderboard({
             return <tr className={`${markedUser == c.id ? "font-bold" : ""}`} key={index}>
               <td>{isSpecial(c) ? "" : `#${++i}`}</td>
               {isSpecial(c) ?
-                <td>c.name</td> :
+                <td>{c.name}</td> :
                 <td className="cursor-pointer" onClick={() => setMarkedUser({
                   label: c.username + "#" + c.tag,
                   value: c.id
