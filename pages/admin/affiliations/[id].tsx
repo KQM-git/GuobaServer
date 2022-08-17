@@ -7,7 +7,7 @@ import { useEffect, useState } from "react"
 import { AffiliationLabel } from "../../../components/Affiliation"
 import { DiscordUser } from "../../../components/DiscordAvatar"
 import FormattedLink from "../../../components/FormattedLink"
-import { ColorInput, TextInput } from "../../../components/Input"
+import { ColorInput, NumberInput, TextInput } from "../../../components/Input"
 import { LoginInfo } from "../../../components/LoginInfo"
 import { getUser, getUserFromCtx, isUser, prisma } from "../../../utils/db"
 import { DetailedUserInfo, GOODData } from "../../../utils/types"
@@ -25,6 +25,7 @@ export default function UserPage({ user, affiliation }: Props) {
   const [toast, setToast] = useState("")
   const [name, setName] = useState(affiliation.name)
   const [description, setDescription] = useState(affiliation.description)
+  const [sort, setSort] = useState(affiliation.sort)
   const [color, setColor] = useState(affiliation.color)
   const [server, setServer] = useState(affiliation.serverId ?? "")
 
@@ -64,19 +65,21 @@ export default function UserPage({ user, affiliation }: Props) {
 
       <TextInput label="Description" set={setDescription} value={description} />
 
+      <NumberInput label="Sort" set={setSort} value={sort} />
+
       <ColorInput color={color} setColor={setColor} />
 
       <TextInput label="Server ID" set={setServer} value={server} validation={(value) => !!(value.match(/^\d{17,21}$/) || value.length == 0)} />
 
       <div>
-        Preview: <AffiliationLabel affiliation={{ color, description, id: 0, name }} />
+        Preview: <AffiliationLabel affiliation={{ color, description, id: 0, name, sort }} />
       </div>
 
       <button
         className={"btn btn-primary my-2"}
         onClick={async () => {
           await doFetch("/api/update-affiliation", JSON.stringify({
-            id: affiliation.id, name, description, color, server
+            id: affiliation.id, name, description, color, server, sort
           }), setToast, router)
         }}
       >

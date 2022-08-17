@@ -136,6 +136,7 @@ export interface SmallExperimentMeta {
 export interface PartialAffiliation {
     id: number
     name: string
+    sort: number
     description: string
     color: string
 }

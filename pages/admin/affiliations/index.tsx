@@ -6,7 +6,7 @@ import { useRouter } from "next/router"
 import { useState } from "react"
 import { AffiliationLabel } from "../../../components/Affiliation"
 import FormattedLink from "../../../components/FormattedLink"
-import { TextInput } from "../../../components/Input"
+import { NumberInput, TextInput } from "../../../components/Input"
 import { LoginInfo } from "../../../components/LoginInfo"
 import { getUserFromCtx, isUser, prisma } from "../../../utils/db"
 import { doFetch } from "../../../utils/utils"
@@ -24,6 +24,7 @@ export default function AffiliationsPage({ user, affiliations }: Props) {
   const [toast, setToast] = useState("")
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
+  const [sort, setSort] = useState(0)
   const [color, setColor] = useState("#CB71F1")
   const [server, setServer] = useState("")
 
@@ -51,6 +52,7 @@ export default function AffiliationsPage({ user, affiliations }: Props) {
         <thead>
           <tr>
             <th>ID</th>
+            <th>Sort</th>
             <th>Name</th>
             <th>Description</th>
             <th>Preview</th>
@@ -58,8 +60,9 @@ export default function AffiliationsPage({ user, affiliations }: Props) {
           </tr>
         </thead>
         <tbody>
-          {affiliations.map(c => <tr key={c.id}>
+          {affiliations.sort((a, b) => a.sort - b.sort || a.id - b.id).map(c => <tr key={c.id}>
             <th>{c.id}</th>
+            <th>{c.sort}</th>
             <th>{c.name}</th>
             <th>{c.description}</th>
             <th>
@@ -77,6 +80,8 @@ export default function AffiliationsPage({ user, affiliations }: Props) {
 
       <TextInput label="Description" set={setDescription} value={description} />
 
+      <NumberInput label="Sort" set={setSort} value={sort} />
+
       <label className="cursor-pointer label justify-start" >
         <span className="font-semibold">Color</span>
         <input
@@ -90,14 +95,14 @@ export default function AffiliationsPage({ user, affiliations }: Props) {
       <TextInput label="Server ID" set={setServer} value={server} validation={(value) => !!(value.match(/^\d{17,21}$/) || value.length == 0)}/>
 
       <div>
-        Preview: <AffiliationLabel affiliation={{ color, description, id: 0, name }} />
+        Preview: <AffiliationLabel affiliation={{ color, description, id: 0, name, sort }} />
       </div>
 
       <button
         className={"btn btn-primary my-2"}
         onClick={async () => {
           await doFetch("/api/create-affiliation", JSON.stringify({
-            name, description, color, server
+            name, description, color, server, sort
           }), setToast, router)
         }}
       >

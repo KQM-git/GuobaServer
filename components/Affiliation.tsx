@@ -31,15 +31,16 @@ export function AffiliationSelector({
   setSelected: (selection: number[]) => void
   affiliations: PartialAffiliation[]
 }) {
+  const sorted = affiliations.sort((a, b) => a.sort - b.sort || a.id - b.id)
   return <div className="flex w-full" >
     <div className="flex-grow">
       <div>Available affiliations</div>
-      {affiliations.filter(a => !selectedAffiliations.includes(a.id)).map(a => <AffiliationLabel key={a.id} affiliation={a} onClick={() => selectedAffiliations.length < 3 && setSelected([...selectedAffiliations, a.id])} />)}
+      {sorted.filter(a => !selectedAffiliations.includes(a.id)).map(a => <AffiliationLabel key={a.id} affiliation={a} onClick={() => selectedAffiliations.length < 3 && setSelected([...selectedAffiliations, a.id])} />)}
     </div>
     <div className="divider divider-horizontal" />
     <div className="flex-grow">
       <div>Selected affiliations</div>
-      {affiliations.filter(a => selectedAffiliations.includes(a.id)).map(a => <AffiliationLabel key={a.id} affiliation={a} onClick={() => setSelected(selectedAffiliations.filter(x => x != a.id))}/>)}
+      {sorted.filter(a => selectedAffiliations.includes(a.id)).map(a => <AffiliationLabel key={a.id} affiliation={a} onClick={() => setSelected(selectedAffiliations.filter(x => x != a.id))}/>)}
     </div>
   </div>
 }

@@ -186,6 +186,7 @@ export async function getUser(id: string, showAll: boolean) {
                 select: {
                     id: true,
                     name: true,
+                    sort: true,
                     description: true,
                     color: true,
                 }
@@ -196,6 +197,11 @@ export async function getUser(id: string, showAll: boolean) {
 
 export async function addGOOD(user: string, good: GOODData, hasChars: boolean, hasWeapons: boolean, uid: string, affiliations: number[], ping: number, stablePing: boolean, arXP: number) {
     console.log(`Adding GOOD for ${user} (UID: ${uid})`)
+    const oldAffiliations = await prisma.user.findUnique({
+        where: { id: user },
+        select: { affiliations: { select: { id: true } } }
+    })
+
     await prisma.$transaction([
         prisma.user.update({
             where: {
@@ -206,6 +212,7 @@ export async function addGOOD(user: string, good: GOODData, hasChars: boolean, h
                 ping, stablePing,
                 arXP,
                 affiliations: {
+                    disconnect: oldAffiliations?.affiliations.filter(x => !affiliations.find(a => a == x.id)) ?? [],
                     connect: affiliations.map(x => ({
                         id: x
                     }))
@@ -412,6 +419,7 @@ export async function getAffiliations(id: string) {
             id: true,
             name: true,
             description: true,
+            sort: true,
             color: true
         },
         where: {

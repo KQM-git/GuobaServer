@@ -513,6 +513,7 @@ export async function getStaticProps(context: GetStaticPropsContext): Promise<Ge
                   select: {
                     id: true,
                     name: true,
+                    sort: true,
                     color: true,
                     description: true,
                   }

@@ -9,12 +9,13 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
     if (!user.admin) return res.send({ error: "No permission!" })
 
     try {
-        const { name, description, color, server, id } = JSON.parse(req.body)
+        const { name, description, color, server, id, sort } = JSON.parse(req.body)
         if (!id) return res.send({ error: "Invalid ID!" })
         if (!name || name.length < 1) return res.send({ error: "Invalid name!" })
         if (!description || description.length < 1) return res.send({ error: "Invalid description!" })
         if (!color || !color.match(/^#[a-zA-Z0-9]+$/)) return res.send({ error: "Invalid color!" })
         if (!(server.match(/^\d{17,21}$/) || server.length == 0)) return res.send({ error: "Invalid server!" })
+        if (typeof sort !== "number") return res.send({ error: "Invalid sort!" })
 
         console.log(`Creating affiliation ${name} for ${user.id}`)
 
@@ -26,6 +27,7 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
                 name,
                 color,
                 description,
+                sort,
                 serverId: server == "" ? null : server
             }
         })

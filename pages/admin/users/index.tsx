@@ -122,6 +122,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async function (ctx
               select: {
                 id: true,
                 name: true,
+                sort: true,
                 description: true,
                 color: true
               }
