@@ -7,7 +7,7 @@ import Head from "next/head"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { Scatter } from "react-chartjs-2"
-import { AffiliationLabel } from "../../components/Affiliation"
+import { AffiliationLabel, AffiliationSelector } from "../../components/Affiliation"
 import { DiscordUser } from "../../components/DiscordAvatar"
 import FormattedLink from "../../components/FormattedLink"
 import { CheckboxInput, NumberInput, NumberInputList, SelectInput } from "../../components/Input"
@@ -53,10 +53,11 @@ interface Props {
   update: Date
 }
 
+interface UserSelection { value: string | number; label: string | number; }
 const UNSELECTED = {
   label: "Select...",
   value: "UNSELECTED"
-} as { value: string | number; label: string | number; }
+} as UserSelection
 export default function Experiment({ location, meta, data, next, prev, affiliations, update }: Props & { location: string }) {
   const desc = `Visualization for the ${meta.name} experiment for the GUOBA project. The GUOBA Project intends to map out how the artifacts of players perform to improve mathematical models/artifact standards for calculations such as the KQMS.`
 
@@ -69,6 +70,7 @@ export default function Experiment({ location, meta, data, next, prev, affiliati
   const [percentiles, setPercentiles] = useState([5, 25, 50, 75, 95])
   const [threshold, setThreshold] = useState(500)
   const [toast, setToast] = useState("")
+  const [affiliationFilter, setAffiliationFilter] = useState([] as number[])
 
   useEffect(() => {
     if (toast.length > 0) {
@@ -79,11 +81,13 @@ export default function Experiment({ location, meta, data, next, prev, affiliati
     }
   }, [toast])
 
-  let shownData = data
+  const filteredData = data.filter(x => affiliationFilter.length == 0 || x.affiliations.some(a => affiliationFilter.includes(a)))
+
+  let shownData = filteredData
   if (showPercentiles && !showBoth)
-    shownData = [...data.filter(x => x.id == markedUser.value), ...getPercentiles(data, meta, percentiles)]
+    shownData = [...filteredData.filter(x => x.id == markedUser.value), ...getPercentiles(filteredData, meta, percentiles)]
   else if (showBoth)
-    shownData = [...data, ...getPercentiles(data, meta, percentiles)]
+    shownData = [...filteredData, ...getPercentiles(filteredData, meta, percentiles)]
 
   /* shownData = shownData.map(x => ({
     ...x,
@@ -162,11 +166,13 @@ export default function Experiment({ location, meta, data, next, prev, affiliati
       {showPercentiles && <CheckboxInput label="Show both users and percentiles" set={setShowBoth} value={showBoth} />}
       {showPercentiles && <NumberInputList label="Shown percentiles" set={setPercentiles} value={percentiles} defaultValue={50} min={0} max={100} />}
       {false && <NumberInput label="Decimate graph data" set={setThreshold} value={threshold} min={0} step={10} />}
+      <span className="font-semibold">Affiliation/flag(s) filter:</span>
+      <AffiliationSelector selectedAffiliations={affiliationFilter} setSelected={setAffiliationFilter} affiliations={Object.values(affiliations)} />
       <SelectInput<string | number> label="Focused user" set={setMarkedUser} value={markedUser.value} options={[
         UNSELECTED,
         ...(showSpecialData ? meta.special.map(x => ({ label: x.name, value: x.id })) : []),
         ...(showPercentiles ? [{ label: "Percentiles", value: "Percentiles" }] : []),
-        ...data.map(x => ({
+        ...filteredData.map(x => ({
           label: x.username + "#" + x.tag,
           value: x.id
         })).sort((a, b) => a.label.localeCompare(b.label))
@@ -175,9 +181,9 @@ export default function Experiment({ location, meta, data, next, prev, affiliati
       <UserGraph data={shownData} showLines={showLines} meta={meta} randomColors={randomColors} markedUser={markedUser.value} showSpecialData={showSpecialData} affiliations={affiliations} />
       <button className="bg-blue-600 disabled:bg-gray-900 text-slate-50 disabled:text-slate-400 w-fit px-3 py-1 text-center rounded-lg mt-2 cursor-pointer float-right" onClick={() => {
         download(`${meta.slug}.csv`, "user,affiliation,ar,x,y\n" +
-          data.flatMap(u => u.stats.map(d => `${u.username.replace(/,/g, "")}#${u.tag},${u.affiliations.join("/").replace(/,/g, "")},${u.ar},${d.join(",")}`)).join("\n"))
+          filteredData.flatMap(u => u.stats.map(d => `${u.username.replace(/,/g, "")}#${u.tag},${u.affiliations.join("/").replace(/,/g, "")},${u.ar},${d.join(",")}`)).join("\n"))
       }}>Export to .csv</button>
-      <Leaderboard data={data} special={meta.special} markedUser={markedUser.value} meta={meta} affiliations={affiliations} setToast={setToast} />
+      <Leaderboard data={filteredData} special={meta.special} markedUser={markedUser.value} setMarkedUser={setMarkedUser} meta={meta} affiliations={affiliations} setToast={setToast} />
 
       <h3 className="text-lg font-bold pt-1" id="disclaimer">Disclaimer</h3>
       <p>This data is gathered from the GUOBA project. Please refer to the <FormattedLink href="/">homepage</FormattedLink> to submit your own data!
@@ -296,13 +302,14 @@ function isSpecial(point: unknown): point is SpecialData {
 }
 
 function Leaderboard({
-  data, meta, markedUser, affiliations, setToast, special
+  data, meta, markedUser, affiliations, setToast, special, setMarkedUser
 }: {
   data: ExperimentData[],
   meta: ExperimentMeta,
   markedUser: string | number,
   affiliations: Record<number, PartialAffiliation>,
   setToast: (msg: string) => void,
+  setMarkedUser: (user: UserSelection) => void,
   special: SpecialData[]
 }) {
   const [expanded, setExpanded] = useState(false)
@@ -344,7 +351,15 @@ function Leaderboard({
 
             return <tr className={`${markedUser == c.id ? "font-bold" : ""}`} key={index}>
               <td>{isSpecial(c) ? "" : `#${++i}`}</td>
-              <td>{isSpecial(c) ? c.name : <DiscordUser user={c} />}</td>
+              {isSpecial(c) ?
+                <td>c.name</td> :
+                <td className="cursor-pointer" onClick={() => setMarkedUser({
+                  label: c.username + "#" + c.tag,
+                  value: c.id
+                })}>
+                  <DiscordUser user={c} />
+                </td>
+              }
               <td>{isSpecial(c) ? "" : c.ar.toLocaleString()}</td>
               <td>{isSpecial(c) ? "" : c.affiliations?.map(a => affiliations[a]).map(a => <AffiliationLabel key={a.id} affiliation={a} />)}</td>
               {meta.x && <td>{c.bestStats?.[0]?.toLocaleString() ?? "---"}</td>}
