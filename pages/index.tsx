@@ -24,6 +24,13 @@ export default function MainPage() {
         strategies when selecting which domain to farm/which artifact to upgrade/which to trash. In previous iterations we&apos;ve used this data
         to map out ER vs EM for a four piece Viridescent Venerer set.</p>
 
+      <h3 className="text-2xl font-bold pt-1" id="participation">Participating</h3>
+      <p>If you want to participate in this project, all you need to do is enter your artifacts into <FormattedLink href="https://frzyc.github.io/genshin-optimizer/"
+          target="go">Genshin Optimizer</FormattedLink> by either manually entering them (not recommended) or via some scanner (read <FormattedLink
+          href="https://frzyc.github.io/genshin-optimizer/#/scanner" target="go-scan">GenshinOptimizer&apos;s scanner page</FormattedLink> for more information) and exporting
+          the database. Make sure that these artifacts are correct; as you&apos;ll be required to verify some of them with Enka.Network as well as you won&apot;t be able to edit them later.
+          Optionally, you can also enter your Weapons and Characters but they don&apos;t need to be properly equipped with artifacts/weapons.</p>
+
       {
         isGUOBAActive() ? <>
           <div className="flex justify-center m-6">
@@ -34,7 +41,7 @@ export default function MainPage() {
         </>
           :
           <div className="font-bold text-xl text-red-700 dark:text-red-400">
-            Note: The form is currently closed.
+            Note: The form is currently closed. Feel free to come back later!
           </div>
       }
 

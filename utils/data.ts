@@ -158,6 +158,14 @@ export const artifactInfo: {
     artifactKey: "EchoesOfAnOffering",
     data: 15024,
     tl: "Echoes of an Offering",
+}, {
+    artifactKey: "DeepwoodMemories",
+    data: 15025,
+    tl: "Deepwood Memories",
+}, {
+    artifactKey: "GildedDreams",
+    data: 15026,
+    tl: "Gilded Dreams",
 }]
 
 export const statInfo: {statKey: string, data: string, tl: string}[] = [{

@@ -29,9 +29,10 @@ export function isValidDataline(value: string) {
     }
 }
 
-const end = new Date("2022-09-01").getTime()
+const start = new Date("2022-08-31T00:00:00Z").getTime()
+const end   = new Date("2022-09-06T23:59:59Z").getTime()
 export function isGUOBAActive() {
-    return Date.now() < end
+    return Date.now() > start && Date.now() < end
 }
 
 export const artifactKeys = artifactInfo.map(x => x.artifactKey)
@@ -42,7 +43,8 @@ export const charKeys = [
     "KamisatoAyato", "Keqing", "Klee", "KujouSara", "KukiShinobu", "Lisa", "Mona", "Ningguang", "Noelle",
     "Qiqi", "RaidenShogun", "Razor", "Rosaria", "SangonomiyaKokomi", "Sayu", "Shenhe", "ShikanoinHeizou",
     "Sucrose", "Tartaglia", "Thoma", "Traveler", "Venti", "Xiangling", "Xiao", "Xingqiu", "Xinyan", "YaeMiko",
-    "Yanfei", "Yelan", "Yoimiya", "YunJin", "Zhongli"
+    "Yanfei", "Yelan", "Yoimiya", "YunJin", "Zhongli",
+    "Collei", "Tighnari", "Dori"
 ]
 
 export const weaponKeys = [
@@ -66,7 +68,8 @@ export const weaponKeys = [
     "SolarPearl", "SongOfBrokenPines", "StaffOfHoma", "SummitShaper", "SwordOfDescension", "TheAlleyFlash", "TheBell", "TheBlackSword",
     "TheCatch", "TheFlute", "TheStringless", "TheUnforged", "TheViridescentHunt", "TheWidsith", "ThrillingTalesOfDragonSlayers",
     "ThunderingPulse", "TravelersHandySword", "TwinNephrite", "VortexVanquisher", "WasterGreatsword", "WavebreakersFin",
-    "WhiteIronGreatsword", "WhiteTassel", "Whiteblind", "WindblumeOde", "WineAndSong", "WolfsGravestone"
+    "WhiteIronGreatsword", "WhiteTassel", "Whiteblind", "WindblumeOde", "WineAndSong", "WolfsGravestone",
+    "EndOfTheLine", "ForestRegalia", "FruitOfFulfillment", "HuntersPath", "KingsSquire", "Moonpiercer", "SapwoodBlade"
 ]
 
 export const slotKeys = slotInfo.map(x => x.slotKey)

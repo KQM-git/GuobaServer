@@ -88,7 +88,7 @@ export default function SubmitPage({ user, affiliations }: Props) {
             href="https://frzyc.github.io/genshin-optimizer/#/scanner" target="go-scan">GenshinOptimizer&apos;s scanner page</FormattedLink> for more information).
         Next, a GOOD export can be taken via the <FormattedLink href="https://frzyc.github.io/genshin-optimizer/#/setting"
           target="go-setting">Settings</FormattedLink> page under <i>Database Download</i>.
-        Please make sure that this artifact data is correct since you&apos;ll need to verify ownership of a subset of the submitted artifacts via your UID.
+        Please <b>make sure</b> that this artifact data is correct since you&apos;ll need to verify ownership of a subset of the submitted artifacts via your UID.
       </p>
       <br />
 

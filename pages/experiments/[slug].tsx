@@ -361,7 +361,7 @@ function Leaderboard({
                 </td>
               }
               <td>{isSpecial(c) ? "" : c.ar.toLocaleString()}</td>
-              <td>{isSpecial(c) ? "" : c.affiliations?.map(a => affiliations[a]).map(a => <AffiliationLabel key={a.id} affiliation={a} />)}</td>
+              <td className="whitespace-normal">{isSpecial(c) ? "" : c.affiliations?.map(a => affiliations[a]).map(a => <AffiliationLabel key={a.id} affiliation={a} />)}</td>
               {meta.x && <td>{c.bestStats?.[0]?.toLocaleString() ?? "---"}</td>}
               <td>{c.bestStats?.[1]?.toLocaleString() ?? "---"}</td>
               <td>{!isSpecial(c) && <button
