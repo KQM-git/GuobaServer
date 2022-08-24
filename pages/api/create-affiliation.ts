@@ -34,6 +34,7 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
 
         return res.send({ ok: true })
     } catch (error) {
+        console.error(error)
         return res.send({ error: "An unknown error occurred!" })
     }
 }
