@@ -29,8 +29,8 @@ export function isValidDataline(value: string) {
     }
 }
 
-const start = new Date("2022-08-31T00:00:00Z").getTime()
-const end   = new Date("2022-09-06T23:59:59Z").getTime()
+const start = new Date("2022-08-30T21:00:00Z").getTime()
+const end   = new Date("2022-09-06T20:59:59Z").getTime()
 export function isGUOBAActive() {
     return Date.now() > start && Date.now() < end
 }
