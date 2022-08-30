@@ -7,6 +7,7 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
     try {
         const { id } = req.query
         if (!id || typeof id != "string" || isNaN(+id)) return res.send({ error: "Invalid data!" })
+        console.log(`Fetching GOOD ${id}`)
 
         const data = await prisma.gOOD.findUnique({
             where: { id: +id },
