@@ -15,7 +15,7 @@ model User {
   createdOn      DateTime        @default(now())
   username       String
   tag            String
-  avatar         String
+  avatar         String?
   authentication Authentication?
   banned         Boolean         @default(false)
   admin          Boolean         @default(false)

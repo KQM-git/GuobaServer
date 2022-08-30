@@ -1,4 +1,4 @@
-export function DiscordAvatar({ user }: { user: { id: string, avatar: string } }) {
+export function DiscordAvatar({ user }: { user: { id: string, avatar: string | null } }) {
     // eslint-disable-next-line @next/next/no-img-element
     return user.avatar ? <img
         src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.webp?size=16`}
@@ -9,6 +9,6 @@ export function DiscordAvatar({ user }: { user: { id: string, avatar: string } }
     /> : <></>
 }
 
-export function DiscordUser({ user }: { user: { id: string, avatar: string, username: string, tag: number | string} }) {
+export function DiscordUser({ user }: { user: { id: string, avatar: string | null, username: string, tag: number | string} }) {
    return <><DiscordAvatar user={user} /> {user.username}<span className="text-xs">#{user.tag}</span></>
 }

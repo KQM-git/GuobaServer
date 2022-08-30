@@ -47,7 +47,7 @@ export async function registerOrLogin(user: DiscordUser, guilds: DiscordGuild[],
             },
             create: {
                 id: user.id,
-                avatar: user.avatar,
+                avatar: user.avatar ?? undefined,
                 username: user.username,
                 tag: user.discriminator,
                 admin: user.id == "127393188729192448",
@@ -56,7 +56,7 @@ export async function registerOrLogin(user: DiscordUser, guilds: DiscordGuild[],
                 }
             },
             update: {
-                avatar: user.avatar,
+                avatar: user.avatar ?? undefined,
                 username: user.username,
                 tag: user.discriminator,
                 guilds: {

@@ -146,7 +146,7 @@ export interface ExperimentData {
     GOODId: number
     username: string
     tag: string
-    avatar: string
+    avatar: string | null
     stats: [number, number][]
     affiliations: number[]
     ar: number
