@@ -120,6 +120,32 @@ export function TextInput({
   </label>
 }
 
+export function TextAreaInput({
+  value,
+  set,
+  label,
+  labelClass,
+  placeholder,
+  validation
+}: {
+  value: string
+  set: (newValue: string) => unknown
+  label: string
+  labelClass?: string
+  placeholder?: string
+  validation?: (newValue: string) => boolean
+}) {
+  return <label className={`cursor-pointer label justify-start ${(validation ? validation(value) : value.length > 0) ? "" : "text-error"} flex-wrap flex`} >
+    <div className={labelClass}>{label}</div>
+    <textarea
+      className={"textarea textarea-bordered w-full"}
+      value={value}
+      placeholder={placeholder}
+      onChange={(e) => set(e.target.value)}
+    />
+  </label>
+}
+
 export function ColorInput({ color, setColor } : { color: string, setColor: (value: string) => void }) {
   return <label className="cursor-pointer label justify-start" >
     <span className="font-semibold">Color</span>

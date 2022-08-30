@@ -4,7 +4,7 @@ import Head from "next/head"
 import Link from "next/link"
 import { NextRouter, useRouter } from "next/router"
 import { Dispatch, SetStateAction, useEffect, useState } from "react"
-import { CheckboxInput, ColorInput, TextInput } from "../../../components/Input"
+import { CheckboxInput, ColorInput, TextAreaInput, TextInput } from "../../../components/Input"
 import { LoginInfo } from "../../../components/LoginInfo"
 import { getExperiment, getUserFromCtx, isUser } from "../../../utils/db"
 import { ExperimentInfoWithLines } from "../../../utils/types"
@@ -86,7 +86,7 @@ export default function ExperimentsPage({ user, experiment }: Props) {
       <TextInput label="X-axis (leave empty for one-shots)" value={x} set={setX} validation={() => true} />
       <TextInput label="Y-axis" value={y} set={setY} />
 
-      <TextInput label="Notes" value={notes} set={setNotes} validation={() => true} />
+      <TextAreaInput label="Notes" value={notes} set={setNotes} validation={() => true} />
 
       <CheckboxInput label="List on homepage" labelClass="font-semibold" set={setPublicExp} value={publicExp} />
 

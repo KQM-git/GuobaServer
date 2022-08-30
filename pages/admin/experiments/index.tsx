@@ -6,7 +6,7 @@ import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
 import { DiscordUser } from "../../../components/DiscordAvatar"
 import FormattedLink from "../../../components/FormattedLink"
-import { TextInput } from "../../../components/Input"
+import { TextAreaInput, TextInput } from "../../../components/Input"
 import { LoginInfo } from "../../../components/LoginInfo"
 import { getExperiments, getUserFromCtx, isUser, prisma } from "../../../utils/db"
 import { ExperimentInfo } from "../../../utils/types"
@@ -187,12 +187,12 @@ export default function ExperimentsPage({ user, experiments, totalTimes }: Props
 
       <TextInput label="Name" value={name} set={setName}/>
 
-      <TextInput label="Slug (.../experiments/[slug])" placeholder={urlify(name, true)} value={slug} set={setSlug} validation={() => true}/>
+      <TextInput label="Slug (.../experiments/[slug])" placeholder={urlify(name, true)} value={slug} set={setSlug} validation={() => true} />
 
-      <TextInput label="X-axis (leave empty for one-shots)" value={x} set={setX} validation={() => true}/>
+      <TextInput label="X-axis (leave empty for one-shots)" value={x} set={setX} validation={() => true} />
       <TextInput label="Y-axis" value={y} set={setY} />
 
-      <TextInput label="Notes" value={notes} set={setNotes} validation={() => true}/>
+      <TextAreaInput label="Notes" value={notes} set={setNotes} validation={() => true} />
 
       <button
         className={"btn btn-primary my-2"}
