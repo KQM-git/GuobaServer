@@ -199,7 +199,7 @@ export function mergeTemplate(userGood: GOODData, template: GOODData) {
     return good
 }
 
-export function validateGOOD(input: unknown) {
+export function validateGOOD(input: unknown, artifacts: boolean = true) {
     const json = input as GOODData
 
     if (json.format !== "GOOD")
@@ -209,48 +209,50 @@ export function validateGOOD(input: unknown) {
     if (typeof json.version !== "number")
         throw { goodError: `Version ${json.version} is invalid.` }
 
-    if (!json.artifacts)
-        throw { goodError: "No artifact data provided" }
+    if (artifacts) {
+        if (!json.artifacts)
+            throw { goodError: "No artifact data provided" }
 
-    if (!Array.isArray(json.artifacts))
-        throw { goodError: "Invalid artifact data" }
+        if (!Array.isArray(json.artifacts))
+            throw { goodError: "Invalid artifact data" }
 
-    if (json.artifacts.length > 1520)
-        throw { goodError: `Too many artifacts (found ${json.artifacts.length})` }
+        if (json.artifacts.length > 1520)
+            throw { goodError: `Too many artifacts (found ${json.artifacts.length})` }
 
-    if (json.artifacts.length < 10)
-        throw { goodError: `Not enough artifacts provided (found ${json.artifacts.length}) - Please add more artifacts, we need the data for lunch ;-).` }
+        if (json.artifacts.length < 10)
+            throw { goodError: `Not enough artifacts provided (found ${json.artifacts.length}) - Please add more artifacts, we need the data for lunch ;-).` }
 
-    for (const artifact of json.artifacts) {
-        if (typeof artifact.setKey !== "string" || !artifactKeys.includes(artifact.setKey))
-            throw { goodError: `Unknown artifact type ${artifact.setKey}` }
-        // TODO check artifact specific rarity
+        for (const artifact of json.artifacts) {
+            if (typeof artifact.setKey !== "string" || !artifactKeys.includes(artifact.setKey))
+                throw { goodError: `Unknown artifact type ${artifact.setKey}` }
+            // TODO check artifact specific rarity
 
-        if (typeof artifact.slotKey !== "string" || !slotKeys.includes(artifact.slotKey))
-            throw { goodError: `Unknown artifact type ${artifact.slotKey}` }
+            if (typeof artifact.slotKey !== "string" || !slotKeys.includes(artifact.slotKey))
+                throw { goodError: `Unknown artifact type ${artifact.slotKey}` }
 
-        if (typeof artifact.level !== "number" || artifact.level < 0 || artifact.level > 20)
-            throw { goodError: `Invalid artifact level ${artifact.level}` }
-        if (typeof artifact.rarity !== "number" || artifact.rarity < 1 || artifact.rarity > 5)
-            throw { goodError: `Invalid artifact rarity ${artifact.rarity}` }
+            if (typeof artifact.level !== "number" || artifact.level < 0 || artifact.level > 20)
+                throw { goodError: `Invalid artifact level ${artifact.level}` }
+            if (typeof artifact.rarity !== "number" || artifact.rarity < 1 || artifact.rarity > 5)
+                throw { goodError: `Invalid artifact rarity ${artifact.rarity}` }
 
 
-        if (typeof artifact.mainStatKey !== "string" || !mainStatKeys.includes(artifact.mainStatKey))
-            throw { goodError: `Unknown artifact stat ${artifact.mainStatKey}` }
-        // TODO Check slotKey specific mainstats
+            if (typeof artifact.mainStatKey !== "string" || !mainStatKeys.includes(artifact.mainStatKey))
+                throw { goodError: `Unknown artifact stat ${artifact.mainStatKey}` }
+            // TODO Check slotKey specific mainstats
 
-        if (!Array.isArray(artifact.substats))
-            throw { goodError: `Unknown artifact substats ${JSON.stringify(artifact.substats)}` }
-        for (const substat of artifact.substats) {
-            if (typeof substat !== "object")
-                throw { goodError: `Unknown artifact substat ${JSON.stringify(substat)}` }
-            if (typeof substat.key !== "string" || !["", ...Object.keys(substats)].includes(substat.key))
-                throw { goodError: `Unknown artifact substat type ${JSON.stringify(substat.key)}` }
+            if (!Array.isArray(artifact.substats))
+                throw { goodError: `Unknown artifact substats ${JSON.stringify(artifact.substats)}` }
+            for (const substat of artifact.substats) {
+                if (typeof substat !== "object")
+                    throw { goodError: `Unknown artifact substat ${JSON.stringify(substat)}` }
+                if (typeof substat.key !== "string" || !["", ...Object.keys(substats)].includes(substat.key))
+                    throw { goodError: `Unknown artifact substat type ${JSON.stringify(substat.key)}` }
 
-            if (typeof substat.value !== "number")
-                throw { goodError: `Unknown artifact substat value ${JSON.stringify(substat.key)}` }
+                if (typeof substat.value !== "number")
+                    throw { goodError: `Unknown artifact substat value ${JSON.stringify(substat.key)}` }
 
-            // TODO Check mainstat specific substats / value range
+                // TODO Check mainstat specific substats / value range
+            }
         }
     }
 
@@ -326,19 +328,19 @@ export function cleanCopy(json: GOODData): GOODData {
     }
 }
 
-export function isGOOD(json: unknown): json is GOODData {
+export function isGOOD(json: unknown, artifacts: boolean = true): json is GOODData {
     try {
-        validateGOOD(json)
+        validateGOOD(json, artifacts)
         return true
     } catch (error) {
         return false
     }
 }
 
-export function getIfGOOD(text: string): GOODData | undefined {
+export function getIfGOOD(text: string, artifacts: boolean = true): GOODData | undefined {
     try {
         const parsed = JSON.parse(text)
-        if (!isGOOD(parsed))
+        if (!isGOOD(parsed, artifacts))
             return
         return parsed
     } catch (error) {
@@ -346,10 +348,10 @@ export function getIfGOOD(text: string): GOODData | undefined {
     }
 }
 
-export function validateJson(text: string, chars: boolean, weapons: boolean): Record<string, string> {
+export function validateJson(text: string, chars: boolean, weapons: boolean, artifacts: boolean = true): Record<string, string> {
     try {
         const parsed = JSON.parse(text)
-        validateGOOD(parsed)
+        validateGOOD(parsed, artifacts)
         return {
             goodError: "", goodWarn: "",
             ...validateChars(chars, text),

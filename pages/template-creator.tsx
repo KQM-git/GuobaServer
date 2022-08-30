@@ -14,9 +14,9 @@ export default function TemplateCreatorPage() {
   const [goodText, setGoodText] = useState("")
   const [char, setChar] = useState("")
 
-  const good = getIfGOOD(goodText)
+  const good = getIfGOOD(goodText, false)
   const template = good ? createTemplate(good, char) : undefined
-  const validation = validateJson(goodText, false, false)
+  const validation = validateJson(goodText, false, false, false)
 
   async function update(file?: File) {
     if (!file) return
