@@ -486,11 +486,6 @@ export async function getStaticProps(context: GetStaticPropsContext): Promise<Ge
     const experiments = await getExperimentList()
 
     const index = experiments.findIndex(x => x.slug == slug)
-    if (index < 0)
-      return {
-        notFound: true,
-        revalidate: 60
-      }
 
     const next = experiments[index + 1] ?? null
     const prev = experiments[index - 1] ?? null
@@ -526,7 +521,8 @@ export async function getStaticProps(context: GetStaticPropsContext): Promise<Ge
     })
     if (!data)
       return {
-        notFound: true
+        notFound: true,
+        revalidate: 60
       }
 
     const affiliations: Record<number, PartialAffiliation> = {}

@@ -14,6 +14,11 @@ export async function getExperimentList() {
             slug: true,
             active: true
         },
+        orderBy: [
+            { character: "asc", },
+            { name: "asc" },
+            { id: "asc" },
+        ],
         where: {
             public: true
         }
@@ -380,7 +385,11 @@ export async function getComputers() {
 
 export async function getExperiments(): Promise<ExperimentInfo[]> {
     return await prisma.experiment.findMany({
-        orderBy: { id: "asc" },
+        orderBy: [
+            { character: "asc", },
+            { name: "asc" },
+            { id: "asc" },
+        ],
         include: {
             creator: true,
             _count: { select: { experimentData: true } }
