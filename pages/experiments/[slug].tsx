@@ -159,7 +159,7 @@ export default function Experiment({ location, meta, data, next, prev, affiliati
       </div>
 
       <h3 className="text-lg font-bold pt-1" id="results">Results</h3>
-      <CheckboxInput label="Show lines" set={setShowLines} value={showLines} />
+      {false && <CheckboxInput label="Show lines" set={setShowLines} value={showLines} />}
       {meta.special.length > 0 && <CheckboxInput label="Show special data" set={setShowSpecialData} value={showSpecialData} />}
       <CheckboxInput label="Randomize colors" set={setRandomColors} value={randomColors} />
       <CheckboxInput label="Show percentiles" set={setShowPercentiles} value={showPercentiles} />
