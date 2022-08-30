@@ -28,7 +28,7 @@ export default function MainPage() {
       <p>If you want to participate in this project, all you need to do is enter your artifacts into <FormattedLink href="https://frzyc.github.io/genshin-optimizer/"
           target="go">Genshin Optimizer</FormattedLink> by either manually entering them (not recommended) or via some scanner (read <FormattedLink
           href="https://frzyc.github.io/genshin-optimizer/#/scanner" target="go-scan">GenshinOptimizer&apos;s scanner page</FormattedLink> for more information) and exporting
-          the database. Make sure that these artifacts are correct; as you&apos;ll be required to verify some of them with Enka.Network as well as you won&apot;t be able to edit them later.
+          the database. Make sure that these artifacts are correct; as you&apos;ll be required to verify some of them with Enka.Network as well as you won&apos;t be able to edit them later.
           Optionally, you can also enter your Weapons and Characters but they don&apos;t need to be properly equipped with artifacts/weapons.</p>
 
       {
