@@ -128,6 +128,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async function (ctx
     where: {
       userId: user.id,
       GOODId: user.GOODId,
+      experiment: {
+        public: true
+      }
     },
     select: {
       createdOn: true,
