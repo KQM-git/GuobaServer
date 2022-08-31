@@ -531,7 +531,7 @@ export async function getStaticProps(context: GetStaticPropsContext): Promise<Ge
         if (!affiliations[x.id]) affiliations[x.id] = x
         return x.id
       }),
-      ar: Math.min(Math.max(...levels), levels[d.user.ar ?? 0] ?? 0 + (d.user.arXP ?? 0)),
+      ar: Math.min(Math.max(...levels), (levels[d.user.ar ?? 0] ?? 0) + (d.user.arXP ?? 0)),
       username: d.user.username,
       id: d.userId,
       avatar: d.user.avatar,
