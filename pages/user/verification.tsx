@@ -108,9 +108,12 @@ export default function VerifyPage({ user, artifacts, previousResult, canSelfRes
 
       {canSelfReset &&
         <>
+          <div className="divider" />
           <h2 className="text-2xl font-bold pt-1" id="unlink">Unlink GOOD</h2>
-          Is there a mistake in your artifact database? You can unlink your GOOD up to <b>1</b> time per week. Please make double, or even triple sure that all the artifacts are correct!
-          It is recommended to start the artifact data entry from scratch.
+          <p>
+            Is there a mistake in your artifact database? You can unlink your GOOD up to <b>1</b> time per week. Please make double, or even triple sure that all the artifacts are correct!
+            It is recommended to start the artifact data entry from scratch.
+          </p>
           <button
             className={"btn btn-error w-full my-2"}
             onClick={async () => {

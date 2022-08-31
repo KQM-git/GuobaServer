@@ -5,6 +5,7 @@ import { ParsedUrlQuery } from "querystring"
 import { config } from "./config"
 import { artifactInfo, slotInfo, statInfo } from "./data"
 import { DiscordGuild, DiscordUser, EnkaData, ExperimentInfo, ExperimentInfoWithLines, GOODData, IArtifact } from "./types"
+import { isGUOBAActive } from "./utils"
 export const prisma = new PrismaClient()
 
 export async function getExperimentList() {
@@ -201,6 +202,8 @@ export async function getUser(id: string, showAll: boolean) {
 }
 
 export async function canSelfReset(user: string) {
+    if (!isGUOBAActive()) return false
+
     const userGOOD = await prisma.gOOD.findMany({
         where: {
             ownerId: user,
@@ -218,10 +221,7 @@ export async function canSelfReset(user: string) {
 
 export async function addGOOD(user: string, good: GOODData, hasChars: boolean, hasWeapons: boolean, uid: string, affiliations: number[], ping: number, stablePing: boolean, arXP: number) {
     console.log(`Adding GOOD for ${user} (UID: ${uid})`)
-    const oldAffiliations = await prisma.user.findUnique({
-        where: { id: user },
-        select: { affiliations: { select: { id: true } } }
-    })
+    const oldAffiliations = await getUserAffiliations(user)
 
     await prisma.$transaction([
         prisma.user.update({
@@ -421,6 +421,12 @@ export async function getExperiment(id: number): Promise<ExperimentInfoWithLines
             _count: { select: { experimentData: true } },
             staticDataline: true
         }
+    })
+}
+export async function getUserAffiliations(user: string) {
+    return await prisma.user.findUnique({
+        where: { id: user },
+        select: { affiliations: { select: { id: true } } }
     })
 }
 

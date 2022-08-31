@@ -1,12 +1,14 @@
 import { User } from "@prisma/client"
 import { GetServerSideProps } from "next"
 import Head from "next/head"
+import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
+import { AffiliationSelector } from "../../components/Affiliation"
 import FormattedLink from "../../components/FormattedLink"
 import { LoginInfo } from "../../components/LoginInfo"
-import { getGOOD, getUserFromCtx, isUser, prisma } from "../../utils/db"
-import { GOODData } from "../../utils/types"
-import { copy, dateFormatter, mergeTemplate } from "../../utils/utils"
+import { getAffiliations, getGOOD, getUserAffiliations, getUserFromCtx, isUser, prisma } from "../../utils/db"
+import { GOODData, PartialAffiliation } from "../../utils/types"
+import { copy, dateFormatter, doFetch, mergeTemplate } from "../../utils/utils"
 
 
 interface Props {
@@ -19,13 +21,19 @@ interface Props {
     }
     createdOn: Date
   }[]
+  affiliations: PartialAffiliation[]
+  userAffiliations: number[]
 }
 
-export default function ProcessingPage({ user, experimentData }: Props) {
+export default function ProcessingPage({ user, experimentData, affiliations, userAffiliations }: Props) {
   const desc = "View your processed GOODs!"
+
+  const router = useRouter()
 
   const [toast, setToast] = useState("")
   const [loadedData, setLoadedData] = useState(null as GOODData | null)
+
+  const [selectedAffiliations, setSelected] = useState(userAffiliations)
 
   useEffect(() => {
     async function fetchGOOD() {
@@ -88,6 +96,20 @@ export default function ProcessingPage({ user, experimentData }: Props) {
         </tbody>
       </table></>}
 
+      <div className="divider" />
+
+      <h4 className="text-lg font-semibold py-2">User settings</h4>
+      <AffiliationSelector selectedAffiliations={selectedAffiliations} setSelected={setSelected} affiliations={affiliations} />
+      <button
+          className={"btn btn-primary w-full my-2"}
+          onClick={async () => {
+            await doFetch("/api/patch-user", JSON.stringify({
+              affiliations: selectedAffiliations
+            }), setToast, router)
+          }}
+        >
+          Update
+        </button>
       {user.admin && <FormattedLink className="text-2xl font-bold pt-1 link link-hover link-primary" href="/admin">Admin panel</FormattedLink>}
 
       {toast.length > 0 &&
@@ -144,5 +166,12 @@ export const getServerSideProps: GetServerSideProps<Props> = async function (ctx
     }
   })
 
-  return { props: { user, experimentData } }
+  return {
+    props: {
+      user,
+      experimentData,
+      affiliations: await getAffiliations(user.id),
+      userAffiliations: (await getUserAffiliations(user.id))?.affiliations.map(x => x.id) ?? []
+    }
+  }
 }
