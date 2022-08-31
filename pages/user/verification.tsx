@@ -6,7 +6,7 @@ import { useEffect, useState } from "react"
 import { Artifact } from "../../components/Artifact"
 import FormattedLink from "../../components/FormattedLink"
 import { LoginInfo } from "../../components/LoginInfo"
-import { getGOOD, getUserFromCtx, isUser, prisma } from "../../utils/db"
+import { canSelfReset, getGOOD, getUserFromCtx, isUser, prisma } from "../../utils/db"
 import { EnkaData, GOODData, IArtifact } from "../../utils/types"
 import { doFetch, pickArtifacts } from "../../utils/utils"
 
@@ -18,9 +18,10 @@ interface Props {
     ttl: number
     verified: number[]
   } | null
+  canSelfReset: boolean
 }
 
-export default function VerifyPage({ user, artifacts, previousResult }: Props) {
+export default function VerifyPage({ user, artifacts, previousResult, canSelfReset }: Props) {
   const desc = "Verify your GOOD data for the GUOBA overlords!"
 
   const router = useRouter()
@@ -78,7 +79,7 @@ export default function VerifyPage({ user, artifacts, previousResult }: Props) {
         <p>
           Please make sure that the artifact in question is visible on <FormattedLink href={`https://enka.network/u/${user.uid}`} className="link link-hover link-primary" target="_blank">Enka.Network</FormattedLink>!
           It might take up to 5 minutes before it shows up after switching in-game. If the site has trouble detecting an artifact, please try again later. If the problem persists, please contact us over at the <FormattedLink
-          href="https://discord.gg/keqing" className="link link-hover link-secondary" target="_blank">KQM Discord</FormattedLink>!
+            href="https://discord.gg/keqing" className="link link-hover link-secondary" target="_blank">KQM Discord</FormattedLink>!
         </p>
         {ttl >= 0 && <p>Please try again when the Enka.Network cooldown expires in <Time ttl={ttl} /></p>}
 
@@ -104,6 +105,25 @@ export default function VerifyPage({ user, artifacts, previousResult }: Props) {
         >
           Verify
         </button>}
+
+      {canSelfReset &&
+        <>
+          <h2 className="text-2xl font-bold pt-1" id="unlink">Unlink GOOD</h2>
+          Is there a mistake in your artifact database? You can unlink your GOOD up to <b>1</b> time per week. Please make double, or even triple sure that all the artifacts are correct!
+          It is recommended to start the artifact data entry from scratch.
+          <button
+            className={"btn btn-error w-full my-2"}
+            onClick={async () => {
+              if (confirm("Are you sure? This can only be done ONCE per week!")) {
+                setTargetTime(Date.now() + 10 * 1000)
+                setTTL(10)
+                await doFetch("/api/self-unlink", "", setToast, router)
+              }
+            }}
+          >
+            Unlink GOOD
+          </button>
+        </>}
 
       {toast.length > 0 &&
         <div className="toast">
@@ -184,7 +204,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async function (ctx
     props: {
       user,
       artifacts,
-      previousResult
+      previousResult,
+      canSelfReset: await canSelfReset(user.id)
     }
   }
 }

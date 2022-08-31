@@ -200,6 +200,22 @@ export async function getUser(id: string, showAll: boolean) {
     })
 }
 
+export async function canSelfReset(user: string) {
+    const userGOOD = await prisma.gOOD.findMany({
+        where: {
+            ownerId: user,
+            createdOn: {
+                gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+            }
+        },
+        select: {
+            verified: true
+        }
+    })
+
+    return userGOOD.length < 2 && !userGOOD.some(x => x.verified)
+}
+
 export async function addGOOD(user: string, good: GOODData, hasChars: boolean, hasWeapons: boolean, uid: string, affiliations: number[], ping: number, stablePing: boolean, arXP: number) {
     console.log(`Adding GOOD for ${user} (UID: ${uid})`)
     const oldAffiliations = await prisma.user.findUnique({
