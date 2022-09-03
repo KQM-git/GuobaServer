@@ -19,7 +19,7 @@ export default function UsersPage({ user, users }: Props) {
   const desc = "Manage users"
 
   return (
-    <main className="max-w-5xl w-full px-1">
+    <main className="max-w-6xl w-full px-1">
       <Head>
         <title>Manage users | The GUOBA Project</title>
         <meta name="twitter:card" content="summary" />

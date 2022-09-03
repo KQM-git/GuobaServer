@@ -64,7 +64,7 @@ export default function ExperimentsPage({ user, experiments, totalTimes }: Props
   }
 
   return (
-    <main className="max-w-5xl w-full px-1">
+    <main className="max-w-6xl w-full px-1">
       <Head>
         <title>Manage experiments | The GUOBA Project</title>
         <meta name="twitter:card" content="summary" />

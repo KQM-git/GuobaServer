@@ -26,7 +26,7 @@ export default function AdminPage({ user }: Props) {
   }, [toast])
 
   return (
-    <main className="max-w-5xl w-full px-1">
+    <main className="max-w-6xl w-full px-1">
       <Head>
         <title>Admin status page | The GUOBA Project</title>
         <meta name="twitter:card" content="summary" />

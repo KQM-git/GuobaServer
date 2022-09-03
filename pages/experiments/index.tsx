@@ -12,7 +12,7 @@ interface Props {
 export default function ExperimentsPage({ location, experiments }: Props & { location: string }) {
   const desc = "The GUOBA Project intends to map out how the artifacts of players perform to improve mathematical models/artifact standards for calculations such as the KQMS."
   return (
-    <main className="max-w-5xl w-full px-1">
+    <main className="max-w-6xl w-full px-1">
       <Head>
         <title>Experiments | The GUOBA Project</title>
         <meta name="twitter:card" content="summary" />

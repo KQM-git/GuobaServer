@@ -50,7 +50,7 @@ export default function ProcessingPage({ user, experimentData, affiliations, use
   }, [toast])
 
   return (
-    <main className="max-w-5xl w-full px-1">
+    <main className="max-w-6xl w-full px-1">
       <Head>
         <title>Processing | The GUOBA Project</title>
         <meta name="twitter:card" content="summary" />

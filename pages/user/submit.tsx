@@ -63,7 +63,7 @@ export default function SubmitPage({ user, affiliations }: Props) {
   }
 
   return (
-    <main className="max-w-5xl w-full px-1">
+    <main className="max-w-6xl w-full px-1">
       <Head>
         <title>Data submission | The GUOBA Project</title>
         <meta name="twitter:card" content="summary" />

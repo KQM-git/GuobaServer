@@ -29,7 +29,7 @@ export default function AffiliationsPage({ user, affiliations }: Props) {
   const [server, setServer] = useState("")
 
   return (
-    <main className="max-w-5xl w-full px-1">
+    <main className="max-w-6xl w-full px-1">
       <Head>
         <title>Manage affiliations | The GUOBA Project</title>
         <meta name="twitter:card" content="summary" />

@@ -47,7 +47,7 @@ export default function UserPage({ user, targetUser }: Props) {
   const unverified = good?.verificationArtifacts.filter((_, i) => !(good?.verifiedArtifacts.includes(i) ?? false))
 
   return (
-    <main className="max-w-5xl w-full px-1">
+    <main className="max-w-6xl w-full px-1">
       <Head>
         <title>{`Manage ${targetUser.username}#${targetUser.tag} | The GUOBA Project`}</title>
         <meta name="twitter:card" content="summary" />

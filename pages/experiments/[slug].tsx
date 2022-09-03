@@ -98,7 +98,7 @@ export default function Experiment({ location, meta, data, next, prev, affiliati
   }))*/
 
   return (
-    <main className="max-w-5xl w-full px-1">
+    <main className="max-w-6xl w-full px-1">
       <Head>
         <title>{`${meta.name} | The GUOBA Project`}</title>
         <meta name="twitter:card" content="summary" />
