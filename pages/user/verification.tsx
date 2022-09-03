@@ -70,7 +70,7 @@ export default function VerifyPage({ user, artifacts, previousResult, canSelfRes
       <h2 className="text-2xl font-bold pt-1" id="verification">Artifact verification</h2>
       <p>
         Please equip the following artifacts on any character on your showcase to confirm your data. Make sure your in-game profile is also set to public.
-        Data will be verified using <FormattedLink href="https://enka.network/" className="link link-hover link-primary" target="_blank">Enka.Network</FormattedLink>.
+        Data will be verified using <FormattedLink href={`https://enka.network/u/${user.uid}`} className="link link-hover link-primary" target="_blank">Enka.Network (UID: {user.uid})</FormattedLink>.
       </p>
       {previousResult && <div>
         <h3 className="font-semibold text-xl text-error mt-2">
