@@ -10,7 +10,7 @@ import { Scatter } from "react-chartjs-2"
 import { AffiliationLabel, AffiliationSelector } from "../../components/Affiliation"
 import { DiscordUser } from "../../components/DiscordAvatar"
 import FormattedLink from "../../components/FormattedLink"
-import { CheckboxInput, NumberInput, NumberInputList, SelectInput } from "../../components/Input"
+import { CheckboxInput, NumberInput, NumberInputList, SelectInput, TriCheckboxInput } from "../../components/Input"
 import { levels } from "../../utils/data"
 import { getExperimentList, prisma } from "../../utils/db"
 import { ExperimentData, GOODData, PartialAffiliation, SmallExperimentMeta } from "../../utils/types"
@@ -66,6 +66,7 @@ export default function Experiment({ location, meta, data, next, prev, affiliati
   const [showSpecialData, setShowSpecialData] = useState(true)
   const [showPercentiles, setShowPercentiles] = useState(true)
   const [showBoth, setShowBoth] = useState(false)
+  const [ownsChar, setOwnsChar] = useState(undefined as boolean | undefined)
   const [markedUser, setMarkedUser] = useState(UNSELECTED)
   const [percentiles, setPercentiles] = useState([5, 25, 50, 75, 95])
   const [threshold, setThreshold] = useState(500)
@@ -81,7 +82,9 @@ export default function Experiment({ location, meta, data, next, prev, affiliati
     }
   }, [toast])
 
-  const filteredData = data.filter(x => affiliationFilter.length == 0 || x.affiliations.some(a => affiliationFilter.includes(a)))
+  const filteredData = data
+    .filter(x => ownsChar === undefined || x.ownsCharacter === ownsChar)
+    .filter(x => affiliationFilter.length == 0 || x.affiliations.some(a => affiliationFilter.includes(a)))
 
   let shownData = filteredData
   if (showPercentiles && !showBoth)
@@ -158,6 +161,10 @@ export default function Experiment({ location, meta, data, next, prev, affiliati
         </button>
       </div>
 
+      <h3 className="text-lg font-semibold">Filters</h3>
+      <AffiliationSelector selectedAffiliations={affiliationFilter} setSelected={setAffiliationFilter} affiliations={Object.values(affiliations)} />
+      <TriCheckboxInput label="Owns character" set={setOwnsChar} value={ownsChar} />
+
       <h3 className="text-lg font-bold pt-1" id="results">Results</h3>
       {false && <CheckboxInput label="Show lines" set={setShowLines} value={showLines} />}
       {meta.special.length > 0 && <CheckboxInput label="Show special data" set={setShowSpecialData} value={showSpecialData} />}
@@ -166,8 +173,6 @@ export default function Experiment({ location, meta, data, next, prev, affiliati
       {showPercentiles && <CheckboxInput label="Show both users and percentiles" set={setShowBoth} value={showBoth} />}
       {showPercentiles && <NumberInputList label="Shown percentiles" set={setPercentiles} value={percentiles} defaultValue={50} min={0} max={100} />}
       {false && <NumberInput label="Decimate graph data" set={setThreshold} value={threshold} min={0} step={10} />}
-      <span className="font-semibold">Affiliation/flag(s) filter:</span>
-      <AffiliationSelector selectedAffiliations={affiliationFilter} setSelected={setAffiliationFilter} affiliations={Object.values(affiliations)} />
       <SelectInput<string | number> label="Focused user" set={setMarkedUser} value={markedUser.value} options={[
         UNSELECTED,
         ...(showSpecialData ? meta.special.map(x => ({ label: x.name, value: x.id })) : []),
@@ -526,19 +531,25 @@ export async function getStaticProps(context: GetStaticPropsContext): Promise<Ge
       }
 
     const affiliations: Record<number, PartialAffiliation> = {}
-    const experimentData = data.experimentData.filter(d => d.GOODId == d.user.GOODId).map(d => ({
-      affiliations: d.user.affiliations.map(x => {
-        if (!affiliations[x.id]) affiliations[x.id] = x
-        return x.id
-      }),
-      ar: Math.min(Math.max(...levels), (levels[d.user.ar ?? 0] ?? 0) + (d.user.arXP ?? 0)),
-      username: d.user.username,
-      id: d.userId,
-      avatar: d.user.avatar,
-      tag: d.user.tag,
-      GOODId: d.GOODId,
-      stats: d.dataLine as [number, number][]
-    }))
+    const experimentData = data.experimentData.filter(d => d.GOODId == d.user.GOODId).map(d => {
+      const a = {
+        affiliations: d.user.affiliations.map(x => {
+          if (!affiliations[x.id]) affiliations[x.id] = x
+          return x.id
+        }),
+        ar: Math.min(Math.max(...levels), (levels[d.user.ar ?? 0] ?? 0) + (d.user.arXP ?? 0)),
+        username: d.user.username,
+        id: d.userId,
+        avatar: d.user.avatar,
+        tag: d.user.tag,
+        GOODId: d.GOODId,
+        ownsCharacter: d.ownsCharacter ?? undefined,
+        stats: d.dataLine as [number, number][]
+      }
+      if (d.ownsCharacter === null)
+        delete a.ownsCharacter
+      return a
+    })
 
     return {
       props: {

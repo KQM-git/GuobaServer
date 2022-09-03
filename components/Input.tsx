@@ -23,6 +23,36 @@ export function CheckboxInput({
   </label>
 }
 
+export function TriCheckboxInput({
+  value,
+  set,
+  label,
+  labelClass
+}: {
+  value: boolean | undefined,
+  set: (newValue: boolean | undefined) => unknown,
+  label: string,
+  labelClass?: string
+}) {
+  return <label className="cursor-pointer label justify-start p-0 pt-1">
+    <span className={labelClass}>{label}</span>
+    <input
+      type="checkbox"
+      className={"checkbox checkbox-sm checkbox-accent ml-1"}
+      checked={value ?? false}
+      ref={e => e && (e.indeterminate = value === undefined)}
+      onChange={(e) => {
+        if (value === undefined)
+          set(true)
+        else if (value)
+          set(false)
+        else
+          set(undefined)
+      }}
+    />
+  </label>
+}
+
 export function SelectInput<T extends string | number>({ value, set, label, options }: { value: T, set: (newValue: { value: T; label: string | number; }) => unknown, options: { value: T, label: string | number }[], label: string }) {
   return <div><label>
     {label}

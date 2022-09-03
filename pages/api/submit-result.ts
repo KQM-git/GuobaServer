@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next"
 import { prisma } from "../../utils/db"
+import { GOODData } from "../../utils/types"
 
 export default async function api(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") return res.send({ error: "Method not allowed!" })
@@ -14,6 +15,17 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
     console.log(`Received GOOD response for ${token.slice(0, 27)}`)
     const queued = await prisma.calculationQueue.findUnique({
       where: { id },
+      include: {
+        experiment: {
+          select: { character: true }
+        },
+        good: {
+          select: {
+            data: true,
+            hasChars: true
+          }
+        }
+      }
     })
 
     if (!queued)
@@ -21,11 +33,18 @@ export default async function api(req: NextApiRequest, res: NextApiResponse) {
     if (queued.computerId !== computer.id)
       return res.send({ error: "Not your queue ID!" })
 
+    let ownsCharacter: boolean | undefined = undefined
+    if (queued.good.hasChars) {
+      const good = queued.good.data as unknown as GOODData
+      ownsCharacter = good.characters?.some(c => c.key == queued.experiment.character)
+    }
+
     await prisma.$transaction([
       prisma.experimentData.create({
         data: {
           computeTime,
           dataLine: output,
+          ownsCharacter,
           computedBy: {
             connect: {
               id: queued.computerId

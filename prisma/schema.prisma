@@ -123,18 +123,19 @@ model StaticDataline {
 }
 
 model ExperimentData {
-  id           Int        @id @default(autoincrement())
-  createdOn    DateTime   @default(now())
-  experiment   Experiment @relation(fields: [experimentId], references: [id])
-  experimentId Int
-  user         User       @relation(fields: [userId], references: [id])
-  userId       String
-  good         GOOD       @relation(fields: [GOODId], references: [id])
-  GOODId       Int
-  dataLine     Json
-  computedBy   Computer   @relation(fields: [computerId], references: [id])
-  computerId   Int
-  computeTime  Int
+  id            Int        @id @default(autoincrement())
+  createdOn     DateTime   @default(now())
+  experiment    Experiment @relation(fields: [experimentId], references: [id])
+  experimentId  Int
+  user          User       @relation(fields: [userId], references: [id])
+  userId        String
+  good          GOOD       @relation(fields: [GOODId], references: [id])
+  GOODId        Int
+  dataLine      Json
+  ownsCharacter Boolean?
+  computedBy    Computer   @relation(fields: [computerId], references: [id])
+  computerId    Int
+  computeTime   Int
 }
 
 model CalculationQueue {

@@ -150,6 +150,7 @@ export interface ExperimentData {
     stats: [number, number][]
     affiliations: number[]
     ar: number
+    ownsCharacter?: boolean
 }
 
 export interface EnkaData {
