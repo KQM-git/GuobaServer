@@ -378,9 +378,13 @@ export function validateChars(toggle: boolean, text: string): {} | { charError: 
         if (parsed.characters.length < 5)
             return { charError: `Character data might be incomplete! Data only contains ${parsed.characters.length} character(s)!` }
 
-        for (const required of ["Traveler", "Amber", "Kaeya", "Lisa", "Barbara", "Xiangling"])
+        for (const required of ["Amber", "Kaeya", "Lisa", "Barbara", "Xiangling"])
             if (!parsed.characters.some(x => x.key == required))
-                return { charError: `Character data might be incomplete! Data doesn't contain ${required == "Traveler" ? "the Traveler" : required}!` }
+                return { charError: `Character data might be incomplete! Data doesn't contain ${required}!` }
+
+        const travelers = charKeys.filter(x => x.startsWith("Traveler"))
+        if (!parsed.characters.some(x => travelers.includes(x.key)))
+            return { charError: "Character data might be incomplete! Data doesn't contain the Traveler!" }
     }
 
     return { charError: "" }
