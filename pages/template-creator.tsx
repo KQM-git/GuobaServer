@@ -191,14 +191,20 @@ function createTemplate(good: GOODData, char: string): string | { char: string, 
 
   // Delete artifacts and settings from template
   delete template.artifacts
-  delete template.states
+  delete template.charMetas
+  delete template.dbMeta
+  delete template.display_weapon
+  delete template.display_artifact
+  delete template.display_optimize
+  delete template.display_character
+  delete template.display_tool
 
   // Filter out other characters
   if (!template.characters.find(x => x.key == char))
     return `Could not find char ${char}; chars in GOOD: ${chars.sort().join(", ")}`
 
   template.characters = template.characters.filter(x => x.key == char)
-  template.buildSettings = template.buildSettings?.filter(x => x.key == char)
+  template.buildSettings = template.buildSettings?.filter(x => x.id == char)
   if (!template.buildSettings || template.buildSettings.length == 0)
     return `Could not find build settings for ${char}`
 
@@ -211,6 +217,8 @@ function createTemplate(good: GOODData, char: string): string | { char: string, 
     return `Could not find weapon of ${char}`
 
   template.characters.forEach(x => {
+    delete x.equippedArtifacts
+
     // Clean up other custom targets
     const target = template.buildSettings?.[0]?.optimizationTarget
     if (x.customMultiTarget && target?.[0] == "custom")

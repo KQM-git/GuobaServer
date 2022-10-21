@@ -42,9 +42,12 @@ export const charKeys = [
     "Eula", "Fischl", "Ganyu", "Gorou", "HuTao", "Jean", "KaedeharaKazuha", "Kaeya", "KamisatoAyaka",
     "KamisatoAyato", "Keqing", "Klee", "KujouSara", "KukiShinobu", "Lisa", "Mona", "Ningguang", "Noelle",
     "Qiqi", "RaidenShogun", "Razor", "Rosaria", "SangonomiyaKokomi", "Sayu", "Shenhe", "ShikanoinHeizou",
-    "Sucrose", "Tartaglia", "Thoma", "Traveler", "Venti", "Xiangling", "Xiao", "Xingqiu", "Xinyan", "YaeMiko",
+    "Sucrose", "Tartaglia", "Thoma", "Venti", "Xiangling", "Xiao", "Xingqiu", "Xinyan", "YaeMiko",
     "Yanfei", "Yelan", "Yoimiya", "YunJin", "Zhongli",
-    "Collei", "Tighnari", "Dori"
+    "TravelerAnemo", "TravelerGeo", "TravelerElectro", "TravelerDendro",
+    "Collei", "Tighnari", "Dori",
+    "Cyno", "Candece", "Nilou",
+    "Nahida", "Layla"
 ]
 
 export const weaponKeys = [
@@ -174,10 +177,10 @@ export function mergeTemplate(userGood: GOODData, template: GOODData) {
     }))
 
     // Enable TC mode
-    good.states = [{
+    /* good.states = [{
         "tcMode": true,
         "key": "GlobalSettings"
-    }]
+    }] */
 
     // Map artifact set exclusion overrides (Excluding all sets by default)
     const artifactSets = [

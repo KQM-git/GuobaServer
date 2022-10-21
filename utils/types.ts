@@ -31,7 +31,13 @@ export interface GOODData {
     */
 
     // GO Settings
-    states?: any[]
+    charMetas?: any
+    dbMeta?: any
+    display_weapon?: any
+    display_artifact?: any
+    display_optimize?: any
+    display_character?: any
+    display_tool?: any
     buildSettings?: any[]
 }
 
@@ -74,6 +80,7 @@ interface ICharacter {
     }
     conditional?: { [k: string]: any }
     customMultiTarget?: any[]
+    equippedArtifacts?: any
 }
 
 export type ComputerInfo = Computer & {
