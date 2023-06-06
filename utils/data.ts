@@ -166,6 +166,22 @@ export const artifactInfo: {
     artifactKey: "GildedDreams",
     data: 15026,
     tl: "Gilded Dreams",
+}, {
+    artifactKey: "DesertPavilionChronicle",
+    data: 15027,
+    tl: "Desert Pavilion Chronicle",
+}, {
+    artifactKey: "FlowerOfParadiseLost",
+    data: 15028,
+    tl: "Flower of Paradise Lost",
+}, {
+    artifactKey: "NymphsDream",
+    data: 15029,
+    tl: "Nymph's Dream",
+}, {
+    artifactKey: "VourukashasGlow",
+    data: 15030,
+    tl: "Vourukasha's Glow",
 }]
 
 export const statInfo: {statKey: string, data: string, tl: string}[] = [{

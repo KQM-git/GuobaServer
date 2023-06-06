@@ -78,7 +78,7 @@ export default function VerifyPage({ user, artifacts, previousResult, canSelfRes
         </h3>
         <p>
           Please make sure that the artifact in question is visible on <FormattedLink href={`https://enka.network/u/${user.uid}`} className="link link-hover link-primary" target="_blank">Enka.Network</FormattedLink>!
-          It might take up to 5 minutes before it shows up after switching in-game. If the site has trouble detecting an artifact, please try again later. If the problem persists, please contact us over at the <FormattedLink
+          It might take up to 5 minutes before it shows up after switching in-game, logging out in the game will cause it to update immediately. If the site has trouble detecting an artifact, please try again later. If the problem persists, please contact us over at the <FormattedLink
             href="https://discord.gg/keqing" className="link link-hover link-secondary" target="_blank">KQM Discord</FormattedLink>!
         </p>
         {ttl >= 0 && <p>Please try again when the Enka.Network cooldown expires in <Time ttl={ttl} /></p>}

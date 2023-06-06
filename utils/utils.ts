@@ -29,8 +29,8 @@ export function isValidDataline(value: string) {
     }
 }
 
-const start = new Date("2022-08-30T21:00:00Z").getTime()
-const end   = new Date("2022-09-06T20:59:59Z").getTime()
+const start = new Date("2023-06-01T21:00:00Z").getTime()
+const end   = new Date("2023-06-30T20:59:59Z").getTime()
 export function isGUOBAActive() {
     return Date.now() > start && Date.now() < end
 }
@@ -45,34 +45,37 @@ export const charKeys = [
     "Sucrose", "Tartaglia", "Thoma", "Venti", "Xiangling", "Xiao", "Xingqiu", "Xinyan", "YaeMiko",
     "Yanfei", "Yelan", "Yoimiya", "YunJin", "Zhongli",
     "TravelerAnemo", "TravelerGeo", "TravelerElectro", "TravelerDendro",
-    "Collei", "Tighnari", "Dori",
-    "Cyno", "Candece", "Nilou",
-    "Nahida", "Layla"
+    "Collei", "Tighnari", "Dori", "Cyno", "Candace", "Nilou", "Nahida", "Layla",
+    "Faruzan", "Wanderer", "Alhaitham", "Yaoyao", "Dehya", "Mika", "Baizhu", "Kaveh", "Kirara",
 ]
 
 export const weaponKeys = [
     "Akuoumaru", "AlleyHunter", "AmenomaKageuchi", "AmosBow", "ApprenticesNotes", "AquaSimulacra", "AquilaFavonia",
-    "BeginnersProtector", "BlackTassel", "BlackcliffAgate", "BlackcliffLongsword", "BlackcliffPole",
-    "BlackcliffSlasher", "BlackcliffWarbow", "BloodtaintedGreatsword", "CalamityQueller", "CinnabarSpindle",
-    "CompoundBow", "CoolSteel", "CrescentPike", "DarkIronSword", "Deathmatch", "DebateClub", "DodocoTales",
-    "DragonsBane", "DragonspineSpear", "DullBlade", "ElegyForTheEnd", "EmeraldOrb", "EngulfingLightning",
-    "EverlastingMoonglow", "EyeOfPerception", "FadingTwilight", "FavoniusCodex", "FavoniusGreatsword",
-    "FavoniusLance", "FavoniusSword", "FavoniusWarbow", "FerrousShadow", "FesteringDesire", "FilletBlade",
-    "FreedomSworn", "Frostbearer", "HakushinRing", "Halberd", "Hamayumi", "HaranGeppakuFutsu", "HarbingerOfDawn",
-    "HuntersBow", "IronPoint", "IronSting", "KagotsurubeIsshin", "KagurasVerity", "KatsuragikiriNagamasa",
-    "KitainCrossSpear", "LionsRoar", "LithicBlade", "LithicSpear", "LostPrayerToTheSacredWinds", "LuxuriousSeaLord",
-    "MagicGuide", "MappaMare", "MemoryOfDust", "Messenger", "MistsplitterReforged", "MitternachtsWaltz", "MouunsMoon",
-    "OathswornEye", "OldMercsPal", "OtherworldlyStory", "PocketGrimoire", "PolarStar", "Predator", "PrimordialJadeCutter",
-    "PrimordialJadeWingedSpear", "PrototypeAmber", "PrototypeArchaic", "PrototypeCrescent", "PrototypeRancour",
-    "PrototypeStarglitter", "Rainslasher", "RavenBow", "RecurveBow", "RedhornStonethresher", "RoyalBow", "RoyalGreatsword",
-    "RoyalGrimoire", "RoyalLongsword", "RoyalSpear", "Rust", "SacrificialBow", "SacrificialFragments", "SacrificialGreatsword",
-    "SacrificialSword", "SeasonedHuntersBow", "SerpentSpine", "SharpshootersOath", "SilverSword", "SkyriderGreatsword",
-    "SkyriderSword", "SkywardAtlas", "SkywardBlade", "SkywardHarp", "SkywardPride", "SkywardSpine", "Slingshot", "SnowTombedStarsilver",
-    "SolarPearl", "SongOfBrokenPines", "StaffOfHoma", "SummitShaper", "SwordOfDescension", "TheAlleyFlash", "TheBell", "TheBlackSword",
-    "TheCatch", "TheFlute", "TheStringless", "TheUnforged", "TheViridescentHunt", "TheWidsith", "ThrillingTalesOfDragonSlayers",
-    "ThunderingPulse", "TravelersHandySword", "TwinNephrite", "VortexVanquisher", "WasterGreatsword", "WavebreakersFin",
-    "WhiteIronGreatsword", "WhiteTassel", "Whiteblind", "WindblumeOde", "WineAndSong", "WolfsGravestone",
-    "EndOfTheLine", "ForestRegalia", "FruitOfFulfillment", "HuntersPath", "KingsSquire", "Moonpiercer", "SapwoodBlade"
+    "AThousandFloatingDreams", "BeaconOfTheReedSea", "BeginnersProtector", "BlackcliffAgate", "BlackcliffLongsword",
+    "BlackcliffPole", "BlackcliffSlasher", "BlackcliffWarbow", "BlackTassel", "BloodtaintedGreatsword",
+    "CalamityQueller", "CinnabarSpindle", "CompoundBow", "CoolSteel", "CrescentPike", "DarkIronSword", "Deathmatch",
+    "DebateClub", "DodocoTales", "DragonsBane", "DragonspineSpear", "DullBlade", "ElegyForTheEnd", "EmeraldOrb",
+    "EndOfTheLine", "EngulfingLightning", "EverlastingMoonglow", "EyeOfPerception", "FadingTwilight",
+    "FavoniusCodex", "FavoniusGreatsword", "FavoniusLance", "FavoniusSword", "FavoniusWarbow", "FerrousShadow",
+    "FesteringDesire", "FilletBlade", "ForestRegalia", "FreedomSworn", "Frostbearer", "FruitOfFulfillment",
+    "HakushinRing", "Halberd", "Hamayumi", "HaranGeppakuFutsu", "HarbingerOfDawn", "HuntersBow", "HuntersPath",
+    "IronPoint", "IronSting", "JadefallsSplendor", "KagotsurubeIsshin", "KagurasVerity", "KatsuragikiriNagamasa",
+    "KeyOfKhajNisut", "KingsSquire", "KitainCrossSpear", "LightOfFoliarIncision", "LionsRoar", "LithicBlade",
+    "LithicSpear", "LostPrayerToTheSacredWinds", "LuxuriousSeaLord", "MagicGuide", "MailedFlower",
+    "MakhairaAquamarine", "MappaMare", "MemoryOfDust", "Messenger", "MissiveWindspear", "MistsplitterReforged",
+    "MitternachtsWaltz", "Moonpiercer", "MouunsMoon", "OathswornEye", "OldMercsPal", "OtherworldlyStory",
+    "PocketGrimoire", "PolarStar", "Predator", "PrimordialJadeCutter", "PrimordialJadeWingedSpear", "PrototypeAmber",
+    "PrototypeArchaic", "PrototypeCrescent", "PrototypeRancour", "PrototypeStarglitter", "Rainslasher", "RavenBow",
+    "RecurveBow", "RedhornStonethresher", "RoyalBow", "RoyalGreatsword", "RoyalGrimoire", "RoyalLongsword",
+    "RoyalSpear", "Rust", "SacrificialBow", "SacrificialFragments", "SacrificialGreatsword", "SacrificialSword",
+    "SapwoodBlade", "SeasonedHuntersBow", "SerpentSpine", "SharpshootersOath", "SilverSword", "SkyriderGreatsword",
+    "SkyriderSword", "SkywardAtlas", "SkywardBlade", "SkywardHarp", "SkywardPride", "SkywardSpine", "Slingshot",
+    "SnowTombedStarsilver", "SolarPearl", "SongOfBrokenPines", "StaffOfHoma", "StaffOfTheScarletSands",
+    "SummitShaper", "SwordOfDescension", "TheAlleyFlash", "TheBell", "TheBlackSword", "TheCatch", "TheFlute",
+    "TheStringless", "TheUnforged", "TheViridescentHunt", "TheWidsith", "ThrillingTalesOfDragonSlayers",
+    "ThunderingPulse", "ToukabouShigure", "TravelersHandySword", "TulaytullahsRemembrance", "TwinNephrite",
+    "VortexVanquisher", "WanderingEvenstar", "WasterGreatsword", "WavebreakersFin", "Whiteblind",
+    "WhiteIronGreatsword", "WhiteTassel", "WindblumeOde", "WineAndSong", "WolfsGravestone", "XiphosMoonlight"
 ]
 
 export const slotKeys = slotInfo.map(x => x.slotKey)
@@ -146,7 +149,7 @@ const multi: Record<string, number|undefined> = {
     "critRate_": 1.2,
     "critDMG_": 1.2,
 
-    "dendro_dmg_": 1.3,
+    "dendro_dmg_": 1.2, // Due to recency
 }
 
 export function getRVValue(artifact: IArtifact) {
