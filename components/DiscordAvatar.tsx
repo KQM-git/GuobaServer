@@ -10,5 +10,5 @@ export function DiscordAvatar({ user }: { user: { id: string, avatar: string | n
 }
 
 export function DiscordUser({ user }: { user: { id: string, avatar: string | null, username: string, tag: number | string} }) {
-   return <><DiscordAvatar user={user} /> {user.username}<span className="text-xs">#{user.tag}</span></>
+   return <><DiscordAvatar user={user} /> {user.username}{user.tag != "0" && <span className="text-xs">#{user.tag}</span>}</>
 }

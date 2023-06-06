@@ -178,7 +178,7 @@ export default function Experiment({ location, meta, data, next, prev, affiliati
         ...(showSpecialData ? meta.special.map(x => ({ label: x.name, value: x.id })) : []),
         ...(showPercentiles ? [{ label: "Percentiles", value: "Percentiles" }] : []),
         ...filteredData.map(x => ({
-          label: x.username + "#" + x.tag,
+          label: x.username + (x.tag != "0" ? "#" + x.tag : ""),
           value: x.id
         })).sort((a, b) => a.label.localeCompare(b.label))
       ]} />
@@ -186,7 +186,7 @@ export default function Experiment({ location, meta, data, next, prev, affiliati
       <UserGraph data={shownData} showLines={showLines} meta={meta} randomColors={randomColors} markedUser={markedUser.value} showSpecialData={showSpecialData} affiliations={affiliations} />
       <button className="bg-blue-600 disabled:bg-gray-900 text-slate-50 disabled:text-slate-400 w-fit px-3 py-1 text-center rounded-lg mt-2 cursor-pointer float-right" onClick={() => {
         download(`${meta.slug}.csv`, "user,affiliation,ar,x,y\n" +
-          filteredData.flatMap(u => u.stats.map(d => `${u.username.replace(/,/g, "")}#${u.tag},${u.affiliations.join("/").replace(/,/g, "")},${u.ar},${d.join(",")}`)).join("\n"))
+          filteredData.flatMap(u => u.stats.map(d => `${u.username.replace(/,/g, "")}${u.tag != "0" ? `#${u.tag}` : ""},${u.affiliations.join("/").replace(/,/g, "")},${u.ar},${d.join(",")}`)).join("\n"))
       }}>Export to .csv</button>
       <Leaderboard data={filteredData} special={meta.special} markedUser={markedUser.value} setMarkedUser={setMarkedUser} meta={meta} affiliations={affiliations} setToast={setToast} />
 
@@ -359,7 +359,7 @@ function Leaderboard({
               {isSpecial(c) ?
                 <td>{c.name}</td> :
                 <td className="cursor-pointer" onClick={() => setMarkedUser({
-                  label: c.username + "#" + c.tag,
+                  label: c.username + (c.tag != "0" ? "#" + c.tag : ""),
                   value: c.id
                 })}>
                   <DiscordUser user={c} />
